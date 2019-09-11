@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="remote.css">
+</head>
+<body>
+<div class="screen">
+  <p id="screen-text">Change this text!</p>
+</div>
+
+<!-- You can also require other files to run in this process -->
+<script src="./renderer.js"></script>
+<script>
+
+  setInterval(() => {
+    document.getElementById('screen-text').innerText = localStorage.getItem('text');
+  }, 100)
+
+  // const electron = require('electron');
+  // const {ipcRenderer} = require('electron');
+  //
+  // ipcRenderer.on('get-new-text', (event, response) => {
+  //   document.getElementById('screen-text').textContent = response.text;
+  // });
+</script>
+</body>
+</html>

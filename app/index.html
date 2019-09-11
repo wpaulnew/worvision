@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./main.css">
+</head>
+<body>
+
+<div class="app">
+  <div class="column-one">
+    <div class="column-one-up">
+      <input type="text" id="input-find" placeholder="Поиск">
+    </div>
+    <div class="column-one-center">
+      <div class="musics">
+        <p>1. Будь прославленый</p>
+        <p>2. Слава тебе и величие</p>
+        <p>3. Вино</p>
+        <p class="selected-music">4. Я знаю кто я в тебе</p>
+        <p>5. Славь душа Господа</p>
+      </div>
+      <div class="favorites">
+        <p class="selected-music">1. Я знаю кто я в тебе</p>
+        <p>2. Славь душа Господа</p>
+      </div>
+    </div>
+    <div class="column-one-down">
+      <button id="action-button-add">
+        <span id="action-button-add-icon"></span>
+        <span id="action-button-add-text">Добавить</span>
+      </button>
+      <button id="action-button-favorite">
+        <span id="action-button-favorite-icon"></span>
+        <span id="action-button-favorite-text">Избраное</span>
+      </button>
+    </div>
+  </div>
+  <div class="column-two">
+    <div class="column-two-up">
+      <input type="text" id="input-music-name" placeholder="Я знаю кто я в тебе">
+    </div>
+    <div class="column-two-center">
+      <!--<textarea id="textarea-music-text">Кто же я что Всевышний Царь меня призвал
+--
+Я блуждал но любовь Твоя, меня нашла. О, меня нашла.
+--
+Дал свободу мне Иисус навек я дитя Царя знаю я.
+--
+Я свободен, искуплен Им, Он милостив
+--
+Был я в рабстве греха но Ты, жизнью заплатил За мои грехи.
+--
+Дал свободу мне Иисус навек я дитя Царя знаю я.</textarea>
+      -->
+      <!-- Выводим текст по клику на экран -->
+      <div id="textarea-music-text" contenteditable="false">
+        <p>Кто же я что Всевышний Царь меня призвал</p>
+        --
+        <p>Я блуждал но любовь Твоя, меня нашла. О, меня нашла.</p>
+        --
+        <p>Дал свободу мне Иисус навек я дитя Царя знаю я.</p>
+        --
+        <p>Я свободен, искуплен Им, Он милостив</p>
+        --
+        <p>Был я в рабстве греха но Ты, жизнью заплатил За мои грехи.</p>
+        --
+        <p>Дал свободу мне Иисус навек я дитя Царя знаю я.</p>
+      </div>
+    </div>
+    <div class="column-two-down">
+      <button id="action-button-edit">
+        <span id="action-button-edit-icon"></span>
+        <span id="action-button-edit-text">Редактировать</span>
+      </button>
+      <button id="action-button-remove">
+        <span id="action-button-remove-icon"></span>
+        <span id="action-button-remove-text">Удалить</span>
+      </button>
+    </div>
+  </div>
+  <div class="column-three">
+    <div class="column-three-up"></div>
+    <div class="column-three-center">
+      <div class="screen">
+        <p id="screen-text">Кто же я что Всевышний Царь меня призвал</p>
+      </div>
+      <div class="screen-control">
+        <button id="action-button-show-screen">
+          <span id="action-button-show-screen-icon"></span>
+        </button>
+        <button id="action-button-hide-screen">
+          <span id="action-button-hide-screen-icon"></span>
+        </button>
+      </div>
+    </div>
+    <div class="column-three-down"></div>
+  </div>
+</div>
+
+
+<!-- Insert this line above script imports  -->
+<script>
+  if (typeof module === 'object') {
+    window.module = module;
+    module = undefined;
+  }
+</script>
+<script src="./renderer.js"></script>
+<script src="./jquery.min.js"></script>
+<!-- Insert this line after script imports -->
+<script>
+  if (window.module) {
+    module = window.module;
+  }
+</script>
+
+<script>
+  document.querySelector('#textarea-music-text').addEventListener('click', function (e) {
+    // Вешаем обработчик клика на UL, не LI
+    // Получили ID, т.к. в e.target содержится элемент по которому кликнули
+
+    const text = e.target.innerText;
+    document.querySelector('#screen-text').innerText = text; // For example
+    localStorage.setItem('text', text);
+  });
+
+  // const electron = require('electron');
+  // const {ipcRenderer} = require('electron');
+  //
+  // const closeEl = document.getElementById('action-button-show-screen');
+  // closeEl.addEventListener('click', function () {
+  //   // ipcRenderer.send('close-main-window');
+  //   ipcRenderer.send('show-remote-screen');
+  // });
+
+  // const changeText = document.getElementById('change-text');
+  // changeText.addEventListener('click', function () {
+  //   ipcRenderer.send('change-text', {text: 'This is new text'});
+  // });
+</script>
+</body>
+</html>
