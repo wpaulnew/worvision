@@ -1,28 +1,29 @@
 {
-  "name": "electron-quick-start",
+  "name": "Worvision",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "A minimal worship application",
   "main": "main.js",
   "scripts": {
     "dev": "electron .",
-    "build": "electron-packager . Worvision"
+    "build": "electron-builder --linux"
   },
   "repository": "https://github.com/electron/electron-quick-start",
-  "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
-  ],
-  "author": "GitHub",
+  "keywords": [],
+  "author": "wpaulnew <p.kobylyatskiy@gmail.com>",
   "license": "CC0-1.0",
   "devDependencies": {
     "electron": "^6.0.8",
-    "electron-packager": "^14.0.6",
-    "electron-reload": "^1.5.0"
+    "electron-builder": "^21.2.0",
+    "electron-installer-debian": "^2.0.0"
   },
   "dependencies": {
     "express": "^4.17.1"
+  },
+  "build": {
+    "appId": "com.worvision",
+    "linux": {
+      "target": "deb",
+      "category": "Utility"
+    }
   }
 }

@@ -3,10 +3,7 @@ const electron = require('electron');
 const {app, BrowserWindow, ipcMain, WebContents} = require('electron');
 const path = require('path');
 
-require('./app/api');
-
-// Enable live reload for all the files inside your project directory
-require('electron-reload')(__dirname);
+// require('./app/api');
 
 let mainWindow;
 let remoteWindow;
