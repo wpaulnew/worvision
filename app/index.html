@@ -14,12 +14,12 @@
       <input type="text" id="input-find" placeholder="Поиск">
     </div>
     <div class="column-one-center">
-      <div class="musics">
-        <p>1. Будь прославленый</p>
-        <p>2. Слава тебе и величие</p>
-        <p>3. Вино</p>
-        <p class="selected-music">4. Я знаю кто я в тебе</p>
-        <p>5. Славь душа Господа</p>
+      <div id="tracks" class="tracks">
+        <!--        <p>1. Будь прославленый</p>-->
+        <!--        <p>2. Слава тебе и величие</p>-->
+        <!--        <p>3. Вино</p>-->
+        <!--        <p class="selected-music">4. Я знаю кто я в тебе</p>-->
+        <!--        <p>5. Славь душа Господа</p>-->
       </div>
       <div class="favorites">
         <p class="selected-music">1. Я знаю кто я в тебе</p>
@@ -55,7 +55,7 @@
 Дал свободу мне Иисус навек я дитя Царя знаю я.</textarea>
       -->
       <!-- Выводим текст по клику на экран -->
-      <div id="textarea-music-text" contenteditable="false">
+      <div id="textarea-music-text" contenteditable="true">
         <p>Кто же я что Всевышний Царь меня призвал</p>
         --
         <p>Я блуждал но любовь Твоя, меня нашла. О, меня нашла.</p>
@@ -99,46 +99,50 @@
   </div>
 </div>
 
+<script>
+  const electron = require('electron');
+  const {ipcRenderer} = require('electron');
 
-<!-- Insert this line above script imports  -->
-<script>
-  if (typeof module === 'object') {
-    window.module = module;
-    module = undefined;
-  }
-</script>
-<script src="./renderer.js"></script>
-<script src="./jquery.min.js"></script>
-<!-- Insert this line after script imports -->
-<script>
-  if (window.module) {
-    module = window.module;
-  }
-</script>
+  ipcRenderer.send('variable-request', ['somevar', 'anothervar']);
 
-<script>
-  document.querySelector('#textarea-music-text').addEventListener('click', function (e) {
+  // Get music
+  ipcRenderer.on('variable-reply', function (event, tracks) {
+    let tracksContainer = document.getElementById('tracks');
+    tracksContainer.innerHTML = '';
+
+    tracks.map((track) => {
+      let element = document.createElement('p');
+      element.innerHTML = (track.id + 1) + '.' + ' ' + track.name;
+      element.setAttribute('id', track.id);
+      tracksContainer.appendChild(element);
+    })
+  });
+
+  // Get track by id
+  document.querySelector('#tracks').addEventListener('click', function (e) {
     // Вешаем обработчик клика на UL, не LI
     // Получили ID, т.к. в e.target содержится элемент по которому кликнули
 
-    const text = e.target.innerText;
-    document.querySelector('#screen-text').innerText = text; // For example
-    localStorage.setItem('text', text);
+    const id = e.target.getAttribute('id');
+    // const text = e.target.innerText;
+    // console.log(id);
+    ipcRenderer.send('send-me-track', id);
   });
 
-  // const electron = require('electron');
-  // const {ipcRenderer} = require('electron');
-  //
-  // const closeEl = document.getElementById('action-button-show-screen');
-  // closeEl.addEventListener('click', function () {
-  //   // ipcRenderer.send('close-main-window');
-  //   ipcRenderer.send('show-remote-screen');
-  // });
+  let selectedTrackId = '';
 
-  // const changeText = document.getElementById('change-text');
-  // changeText.addEventListener('click', function () {
-  //   ipcRenderer.send('change-text', {text: 'This is new text'});
-  // });
+  ipcRenderer.on('send-me-track-reply', function (event, track) {
+    if (track !== null) {
+      selectedTrackId = track.id;
+      document.getElementById('textarea-music-text').innerHTML = '<p>' + track.text + '</p>';
+    }
+  });
+
+  document.getElementById('action-button-edit').addEventListener('click', () => {
+    const text = document.getElementById('textarea-music-text').innerHTML;
+    ipcRenderer.send('update-track-text', {selectedTrackId, text});
+  });
+
 </script>
 </body>
 </html>

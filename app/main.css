@@ -52,7 +52,7 @@ body {
   justify-content: space-between;
 }
 
-.musics {
+.tracks {
   width: 100%;
   margin: 0;
   padding: 20px 0 0 20px;
@@ -60,12 +60,12 @@ body {
   flex-grow: 2;
 }
 
-.musics p {
+.tracks p {
   margin: 0 0 4px 0;
   cursor: pointer;
 }
 
-.musics p:hover {
+.tracks p:hover {
   font-weight: bold;
 }
 

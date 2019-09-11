@@ -1,7 +1,11 @@
 // Modules to control application life and create native browser window
 const electron = require('electron');
-const {app, BrowserWindow, ipcMain, WebContents} = require('electron');
+const {app, BrowserWindow, ipcMain, webContents} = require('electron');
 const path = require('path');
+const fs = require('fs');
+
+// Live reload
+require('electron-reload')(__dirname);
 
 // require('./app/api');
 
@@ -21,6 +25,8 @@ function createWindow() {
   mainWindow.maximize();
 
   mainWindow.loadFile('./app/index.html');
+
+  mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', function () {
     mainWindow = null
@@ -62,14 +68,58 @@ app.on('activate', function () {
   if (mainWindow === null) createWindow()
 });
 
-ipcMain.on('close-main-window', function () {
-  app.quit();
+// const mainProcessVars = {
+//   somevar: "name",
+//   anothervar: 33
+// };
+
+ipcMain.on('variable-request', function (event, arg) {
+  fs.readFile(__dirname + '/app/api/modules/tracks.json', "utf8", (err, tracks) => {
+    if (err) console.error(err);
+    event.sender.send('variable-reply', JSON.parse(tracks));
+  });
 });
 
-ipcMain.on('show-remote-screen', function () {
+ipcMain.on('send-me-track', function (event, id) {
+  fs.readFile(__dirname + '/app/api/modules/tracks.json', "utf8", (err, tracks) => {
+    if (err) console.error(err);
 
+    // Find track by id
+    const track = JSON.parse(tracks).find((track) => track.id === parseInt(id));
+
+    // Send founded track to renderer
+    event.sender.send('send-me-track-reply', track);
+  });
 });
 
-ipcMain.on('change-text', (event, args) => {
-  remoteWindow.webContents.send('get-new-text', args);
+ipcMain.on('update-track-text', function (event, track) {
+  fs.readFile(__dirname + '/app/api/modules/tracks.json', "utf8", (err, tracks) => {
+    if (err) console.error(err);
+
+    const parsedTracks = JSON.parse(tracks);
+
+    //Find index of specific object using findIndex method.
+    // console.log(track);
+    let objIndex = JSON.parse(tracks).findIndex(t => t.id === track.selectedTrackId);
+
+    //Log object to Console.
+    console.log("Before update: ", [objIndex]);
+
+    //Update object name property.
+    parsedTracks[objIndex].text = track.text;
+
+    //Log object to console again.
+    console.log("After update: ", parsedTracks[objIndex]);
+    console.log(parsedTracks);
+
+    // console.log(tracks.concat(tracks, JSON.parse(tracks).find((track) => track.id === parseInt(track.id))));
+
+    // const newTrackContainer = [...tracks, JSON.parse(tracks).find((track) => track.id === parseInt(track.id)).text = track.text];
+
+    // console.log(newTrackContainer);
+
+    fs.writeFile(__dirname + '/app/api/modules/tracks.json', JSON.stringify(parsedTracks), () => {
+      event.sender.send('send-me-track-reply', true);
+    });
+  });
 });
