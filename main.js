@@ -3,8 +3,7 @@ const electron = require('electron');
 const {app, BrowserWindow, ipcMain, WebContents} = require('electron');
 const path = require('path');
 
-// Use express
-const express = require('express');
+require('./app/api');
 
 // Enable live reload for all the files inside your project directory
 require('electron-reload')(__dirname);
@@ -32,16 +31,6 @@ function createWindow() {
 }
 
 app.on('ready', () => {
-
-  // Connect to api
-  const api = express();
-  const port = 3000;
-  api.get('/', (req, res) => {
-    // const text = localStorage.getItem('text');
-    // res.send(text);
-  });
-  api.listen(port, () => console.log(`Example app listening on port ${port}!`));
-
   // Create windows
   createWindow();
 
