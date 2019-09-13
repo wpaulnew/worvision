@@ -77,6 +77,13 @@ app.on('ready', () => {
 
   });
 
+  // Write file
+  ipcMain.on('write', function (event, text) {
+    fs.writeFile(__dirname + '/api/view/current.txt', text, (error) => {
+      if (error) throw error;
+    });
+  });
+
   /*
   // Create remote window
   let displays = electron.screen.getAllDisplays();

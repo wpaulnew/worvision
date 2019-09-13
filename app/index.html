@@ -169,6 +169,7 @@
   // Moving between lines
 
   let count = 0;
+  let currentText = '';
 
   function remClass() {
     let allElements = document.querySelectorAll('#textarea-music-text p');
@@ -194,6 +195,9 @@
         for (let i = 0; i < allElements.length; i++) {
           if (allElements[i].className === 'active-text') {
             count = i;
+
+            // Select current text and send it
+            ipcRenderer.send('write', allElements[i].innerText);
           }
         }
       }
@@ -210,7 +214,8 @@
         }
         count--;
         document.querySelector('#screen-text').innerHTML = allElements[count].innerHTML;
-        // ipcRenderer.send('sending-text', allElements[count].innerHTML);
+        // Select current text and send it
+        ipcRenderer.send('write', allElements[count].innerText);
 
         remClass();
 
@@ -224,7 +229,8 @@
           count++;
         }
         document.querySelector('#screen-text').innerHTML = allElements[count + 1].innerHTML;
-        ipcRenderer.send('sending-text', allElements[count + 1].innerHTML);
+        // Select current text and send it
+        ipcRenderer.send('write', allElements[count + 1].innerText);
         count++;
 
         remClass();

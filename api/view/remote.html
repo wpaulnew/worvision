@@ -9,8 +9,21 @@
 <body>
 
 <div class="screen">
-  <p id="screen-text">Я блуждал но любовь Твоя, меня нашла. О, меня нашла.</p>
+  <p id="screen-text"></p>
 </div>
+
+<script>
+  setInterval(() => {
+    fetch('http://192.168.0.100:3001/current')
+      .then((res) => res.json())
+      .then(
+        (res) => {
+          document.getElementById('screen-text').innerText = res.text;
+          // console.log(text);
+        }
+      );
+  }, 100);
+</script>
 
 </body>
 </html>
