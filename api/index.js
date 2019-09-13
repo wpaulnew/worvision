@@ -1,16 +1,12 @@
 const express = require('express');
-const path = require('path')
+const path = require('path');
 const app = express();
-const port = 3000;
+const port = 3001;
 
-app.use(express.static(__dirname + '/remote'));
+app.use(express.static(__dirname + '/view'));
 
 app.get('/remote', (req, res) => {
-  // res.send('Api is here!');
-  res.sendFile(path.join(__dirname + '/remote/index.html'));
+  res.sendFile(path.join(__dirname + '/view/remote.html'));
 });
 
-
-app.listen(port, '0.0.0.0');
-
-console.log('Running at Port: ' + port);
+app.listen(3001, '0.0.0.0');

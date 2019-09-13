@@ -1,16 +1,17 @@
 // Modules to control application life and create native browser window
 const electron = require('electron');
 const {app, BrowserWindow, ipcMain, webContents} = require('electron');
-const path = require('path');
+
 const fs = require('fs');
 
 // Live reload
-require('electron-reload')(__dirname);
+// require('electron-reload')(__dirname);
 
-// require('./app/api');
+require('./api');
 
 let mainWindow;
-let remoteWindow;
+
+// let remoteWindow;
 
 function createWindow() {
   // Create the browser window.
@@ -24,7 +25,7 @@ function createWindow() {
 
   mainWindow.maximize();
 
-  mainWindow.loadFile('./app/index.html');
+  mainWindow.loadFile(__dirname + '/app/index.html');
 
   mainWindow.webContents.openDevTools();
 
@@ -37,6 +38,46 @@ app.on('ready', () => {
   // Create windows
   createWindow();
 
+
+  // Get files
+  ipcMain.on('files', function (event, args) {
+
+    fs.readdir(__dirname + '/api/resources', (err, files) => {
+      // event.sender.send('files', JSON.parse(files));
+
+      event.sender.send('files', files);
+    });
+  });
+
+  // Read file
+  ipcMain.on('file', function (event, name) {
+
+    if (name !== null) {
+      fs.readFile(__dirname + '/api/resources/' + name + '.txt', "utf8",
+        function (error, data) {
+          if (error) throw error; // если возникла ошибка
+
+          const text = data.split("\n");
+          // console.log(text);
+
+          let formattedText = [];
+
+          for (let i = 0; i < text.length; i++) {
+            if (text[i] !== '') {
+              // console.log('<p>' + text[i] + '</p>');
+              // formattedText.push('<p>' + text[i] + '</p>')
+              formattedText.push(text[i])
+            }
+          }
+
+          console.log(formattedText);
+          event.sender.send('file', formattedText);
+        });
+    }
+
+  });
+
+  /*
   // Create remote window
   let displays = electron.screen.getAllDisplays();
   let externalDisplay = displays.find((display) => {
@@ -58,6 +99,7 @@ app.on('ready', () => {
     // and load the index.html of the app.
     remoteWindow.loadFile('./app/remote.html');
   }
+  */
 });
 
 app.on('window-all-closed', function () {
@@ -66,60 +108,4 @@ app.on('window-all-closed', function () {
 
 app.on('activate', function () {
   if (mainWindow === null) createWindow()
-});
-
-// const mainProcessVars = {
-//   somevar: "name",
-//   anothervar: 33
-// };
-
-ipcMain.on('variable-request', function (event, arg) {
-  fs.readFile(__dirname + '/app/api/modules/tracks.json', "utf8", (err, tracks) => {
-    if (err) console.error(err);
-    event.sender.send('variable-reply', JSON.parse(tracks));
-  });
-});
-
-ipcMain.on('send-me-track', function (event, id) {
-  fs.readFile(__dirname + '/app/api/modules/tracks.json', "utf8", (err, tracks) => {
-    if (err) console.error(err);
-
-    // Find track by id
-    const track = JSON.parse(tracks).find((track) => track.id === parseInt(id));
-
-    // Send founded track to renderer
-    event.sender.send('send-me-track-reply', track);
-  });
-});
-
-ipcMain.on('update-track-text', function (event, track) {
-  fs.readFile(__dirname + '/app/api/modules/tracks.json', "utf8", (err, tracks) => {
-    if (err) console.error(err);
-
-    const parsedTracks = JSON.parse(tracks);
-
-    //Find index of specific object using findIndex method.
-    // console.log(track);
-    let objIndex = JSON.parse(tracks).findIndex(t => t.id === track.selectedTrackId);
-
-    //Log object to Console.
-    console.log("Before update: ", [objIndex]);
-
-    //Update object name property.
-    parsedTracks[objIndex].text = track.text;
-
-    //Log object to console again.
-    console.log("After update: ", parsedTracks[objIndex]);
-    console.log(parsedTracks);
-
-    // console.log(tracks.concat(tracks, JSON.parse(tracks).find((track) => track.id === parseInt(track.id))));
-
-    // const newTrackContainer = [...tracks, JSON.parse(tracks).find((track) => track.id === parseInt(track.id)).text = track.text];
-
-    // console.log(newTrackContainer);
-
-    fs.writeFile(__dirname + '/app/api/modules/tracks.json', JSON.stringify(parsedTracks), () => {
-      event.sender.send('send-me-track-reply', true);
-    });
-  });
 });

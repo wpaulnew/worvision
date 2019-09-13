@@ -22,8 +22,10 @@
         <!--        <p>5. Славь душа Господа</p>-->
       </div>
       <div class="favorites">
+        <!--
         <p class="selected-music">1. Я знаю кто я в тебе</p>
         <p>2. Славь душа Господа</p>
+        -->
       </div>
     </div>
     <div class="column-one-down">
@@ -39,7 +41,7 @@
   </div>
   <div class="column-two">
     <div class="column-two-up">
-      <input type="text" id="input-music-name" placeholder="Я знаю кто я в тебе">
+      <input type="text" id="input-music-name" placeholder="Назване выбраной песни">
     </div>
     <div class="column-two-center">
       <!--<textarea id="textarea-music-text">Кто же я что Всевышний Царь меня призвал
@@ -55,7 +57,8 @@
 Дал свободу мне Иисус навек я дитя Царя знаю я.</textarea>
       -->
       <!-- Выводим текст по клику на экран -->
-      <div id="textarea-music-text" contenteditable="true">
+      <div id="textarea-music-text" contenteditable="false">
+        <!--
         <p>Кто же я что Всевышний Царь меня призвал</p>
         --
         <p>Я блуждал но любовь Твоя, меня нашла. О, меня нашла.</p>
@@ -67,6 +70,7 @@
         <p>Был я в рабстве греха но Ты, жизнью заплатил За мои грехи.</p>
         --
         <p>Дал свободу мне Иисус навек я дитя Царя знаю я.</p>
+        -->
       </div>
     </div>
     <div class="column-two-down">
@@ -84,7 +88,9 @@
     <div class="column-three-up"></div>
     <div class="column-three-center">
       <div class="screen">
+
         <p id="screen-text">Кто же я что Всевышний Царь меня призвал</p>
+
       </div>
       <div class="screen-control">
         <button id="action-button-show-screen">
@@ -103,44 +109,129 @@
   const electron = require('electron');
   const {ipcRenderer} = require('electron');
 
-  ipcRenderer.send('variable-request', ['somevar', 'anothervar']);
+  // Get files (tracks)
+  setTimeout(() => {
+    ipcRenderer.send('files', []);
+  }, 100);
 
-  // Get music
-  ipcRenderer.on('variable-reply', function (event, tracks) {
+  ipcRenderer.on('files', function (event, files) {
+    // console.log(files);
     let tracksContainer = document.getElementById('tracks');
     tracksContainer.innerHTML = '';
 
-    tracks.map((track) => {
+    files.map((file, index) => {
+      // console.log(file, index);
       let element = document.createElement('p');
-      element.innerHTML = (track.id + 1) + '.' + ' ' + track.name;
-      element.setAttribute('id', track.id);
+      element.innerHTML = (index + 1) + '.' + ' ' + file.substring(0, file.length - 4);
+      element.setAttribute('id', index);
+      element.setAttribute('name', file.substring(0, file.length - 4));
       tracksContainer.appendChild(element);
     })
   });
 
-  // Get track by id
+  // Open file
   document.querySelector('#tracks').addEventListener('click', function (e) {
-    // Вешаем обработчик клика на UL, не LI
-    // Получили ID, т.к. в e.target содержится элемент по которому кликнули
 
-    const id = e.target.getAttribute('id');
+    // Get only name
+    const name = e.target.getAttribute('name');
     // const text = e.target.innerText;
-    // console.log(id);
-    ipcRenderer.send('send-me-track', id);
-  });
+    console.log(name);
+    ipcRenderer.send('file', name);
 
-  let selectedTrackId = '';
+    // Set name of selected song
+    document.getElementById('input-music-name').value = name;
 
-  ipcRenderer.on('send-me-track-reply', function (event, track) {
-    if (track !== null) {
-      selectedTrackId = track.id;
-      document.getElementById('textarea-music-text').innerHTML = '<p>' + track.text + '</p>';
+    // Add active/not active status
+    if (e.target.tagName === 'P') {
+      let allElements = document.querySelectorAll('#tracks p');
+      for (let i = 0; i < allElements.length; i++) {
+        allElements[i].classList.remove('active-text');
+      }
+      e.target.classList.add('active-text');
     }
   });
 
-  document.getElementById('action-button-edit').addEventListener('click', () => {
-    const text = document.getElementById('textarea-music-text').innerHTML;
-    ipcRenderer.send('update-track-text', {selectedTrackId, text});
+  // Add text to textarea
+  ipcRenderer.on('file', function (event, text) {
+    // console.log(text);
+    let textareaMusicText = document.getElementById('textarea-music-text');
+    textareaMusicText.innerHTML = '';
+
+    text.map((line, index) => {
+      // console.log(line, index);
+      let element = document.createElement('p');
+      element.innerHTML = line;
+      element.setAttribute('id', index);
+      textareaMusicText.appendChild(element);
+    })
+  });
+
+  // Moving between lines
+
+  let count = 0;
+
+  function remClass() {
+    let allElements = document.querySelectorAll('#textarea-music-text p');
+    for (let i = 0; i < allElements.length; i++) {
+      allElements[i].classList.remove('active-text');
+    }
+  }
+
+  document.querySelector('#textarea-music-text').addEventListener('click', function (e) {
+    if (e.target.tagName === "P" || e.target.tagName === "SPAN") {
+      if (e.target.innerText[0] !== '-' && e.target.innerText[1] !== '-') {
+        const text = e.target.innerText;
+        let allElements = document.querySelectorAll('#textarea-music-text p');
+        document.getElementById('screen-text').innerHTML = text;
+        // ipcRenderer.send('sending-text', text);
+
+        remClass();
+
+        if (e.target.tagName === 'P') {
+          e.target.classList.add('active-text');
+        }
+
+        for (let i = 0; i < allElements.length; i++) {
+          if (allElements[i].className === 'active-text') {
+            count = i;
+          }
+        }
+      }
+    }
+  });
+
+  document.body.addEventListener('keydown', function (event) {
+    let allElements = document.querySelectorAll('#textarea-music-text p');
+    if (event.code === 'ArrowUp') {
+
+      if (count > 0) {
+        if (allElements[count - 1].innerText[0] === '-' && allElements[count - 1].innerText[1] === '-') {
+          count--;
+        }
+        count--;
+        document.querySelector('#screen-text').innerHTML = allElements[count].innerHTML;
+        // ipcRenderer.send('sending-text', allElements[count].innerHTML);
+
+        remClass();
+
+        allElements[count].classList.add('active-text');
+      }
+    }
+    if (event.code === 'ArrowDown') {
+
+      if (count + 1 < allElements.length) {
+        if (allElements[count + 1].innerText[0] === '-' && allElements[count + 1].innerText[1] === '-') {
+          count++;
+        }
+        document.querySelector('#screen-text').innerHTML = allElements[count + 1].innerHTML;
+        ipcRenderer.send('sending-text', allElements[count + 1].innerHTML);
+        count++;
+
+        remClass();
+
+        allElements[count].classList.add('active-text');
+      }
+    }
   });
 
 </script>

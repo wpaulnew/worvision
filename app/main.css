@@ -315,10 +315,19 @@ body {
   padding: 20px 20px 0 20px;
   font-size: 16px;
   box-sizing: border-box;
+  overflow-y: auto;
+}
+
+#textarea-music-text::-webkit-scrollbar {
+  width: 0;
 }
 
 #textarea-music-text p:hover {
   cursor: pointer;
+}
+
+#textarea-music-text p:first-child {
+  margin-top: 0;
 }
 
 #input-find {
@@ -332,12 +341,15 @@ body {
   font-size: 16px;
 }
 
+.active-text {
+  font-weight: bold;
+}
 /* /Column-two */
 
 /* Column-three */
 
 .column-three {
-  /*width: 640px;*/
+  width: 640px;
   flex-grow: 1;
   height: 100%;
   background: #F7F6F3;
