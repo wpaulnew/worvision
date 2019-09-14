@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "dev": "nodemon --watch * --exec \"electron .\"",
-    "build": "electron-builder --linux",
+    "build": "electron-builder --linux --win",
     "server": "nodemon /server/server.js",
     "dev-ex": "concurrently --kill-others \"nodemon /server/server.js\" \"electron .\" "
   },
@@ -22,13 +22,17 @@
     "nodemon": "^1.19.2"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "ip": "^1.1.5"
   },
   "build": {
     "appId": "com.worvision",
     "linux": {
       "target": "deb",
       "category": "Utility"
+    },
+    "win": {
+      "target": "NSIS"
     }
   }
 }

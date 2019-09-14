@@ -1,11 +1,11 @@
 // Modules to control application life and create native browser window
 const electron = require('electron');
 const {app, BrowserWindow, ipcMain, webContents} = require('electron');
-
 const fs = require('fs');
+const ip = require('ip');
 
 // Live reload
-// require('electron-reload')(__dirname);
+require('electron-reload')(__dirname);
 
 require('./api');
 
@@ -27,7 +27,7 @@ function createWindow() {
 
   mainWindow.loadFile(__dirname + '/app/index.html');
 
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', function () {
     mainWindow = null
@@ -37,7 +37,6 @@ function createWindow() {
 app.on('ready', () => {
   // Create windows
   createWindow();
-
 
   // Get files
   ipcMain.on('files', function (event, args) {
@@ -70,7 +69,7 @@ app.on('ready', () => {
             }
           }
 
-          console.log(formattedText);
+          // console.log(formattedText);
           event.sender.send('file', formattedText);
         });
     }
@@ -82,6 +81,11 @@ app.on('ready', () => {
     fs.writeFile(__dirname + '/api/view/current.txt', text, (error) => {
       if (error) throw error;
     });
+  });
+
+  // Send ip address
+  ipcMain.on('ip-address', function (event, args) {
+    event.sender.send('ip-address', ip.address());
   });
 
   /*

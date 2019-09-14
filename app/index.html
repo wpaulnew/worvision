@@ -12,15 +12,13 @@
   <div class="column-one">
     <div class="column-one-up">
       <input type="text" id="input-find" placeholder="Поиск">
+      <select id="action-select-category">
+        <option value="1" selected>Песни</option>
+        <option value="2">Библия</option>
+      </select>
     </div>
     <div class="column-one-center">
-      <div id="tracks" class="tracks">
-        <!--        <p>1. Будь прославленый</p>-->
-        <!--        <p>2. Слава тебе и величие</p>-->
-        <!--        <p>3. Вино</p>-->
-        <!--        <p class="selected-music">4. Я знаю кто я в тебе</p>-->
-        <!--        <p>5. Славь душа Господа</p>-->
-      </div>
+      <div id="tracks" class="tracks"></div>
       <div class="favorites">
         <!--
         <p class="selected-music">1. Я знаю кто я в тебе</p>
@@ -44,33 +42,7 @@
       <input type="text" id="input-music-name" placeholder="Назване выбраной песни">
     </div>
     <div class="column-two-center">
-      <!--<textarea id="textarea-music-text">Кто же я что Всевышний Царь меня призвал
---
-Я блуждал но любовь Твоя, меня нашла. О, меня нашла.
---
-Дал свободу мне Иисус навек я дитя Царя знаю я.
---
-Я свободен, искуплен Им, Он милостив
---
-Был я в рабстве греха но Ты, жизнью заплатил За мои грехи.
---
-Дал свободу мне Иисус навек я дитя Царя знаю я.</textarea>
-      -->
-      <!-- Выводим текст по клику на экран -->
       <div id="textarea-music-text" contenteditable="false">
-        <!--
-        <p>Кто же я что Всевышний Царь меня призвал</p>
-        --
-        <p>Я блуждал но любовь Твоя, меня нашла. О, меня нашла.</p>
-        --
-        <p>Дал свободу мне Иисус навек я дитя Царя знаю я.</p>
-        --
-        <p>Я свободен, искуплен Им, Он милостив</p>
-        --
-        <p>Был я в рабстве греха но Ты, жизнью заплатил За мои грехи.</p>
-        --
-        <p>Дал свободу мне Иисус навек я дитя Царя знаю я.</p>
-        -->
       </div>
     </div>
     <div class="column-two-down">
@@ -88,9 +60,7 @@
     <div class="column-three-up"></div>
     <div class="column-three-center">
       <div class="screen">
-
         <p id="screen-text">Кто же я что Всевышний Царь меня призвал</p>
-
       </div>
       <div class="screen-control">
         <button id="action-button-show-screen">
@@ -101,7 +71,9 @@
         </button>
       </div>
     </div>
-    <div class="column-three-down"></div>
+    <div class="column-three-down">
+      <span id="ip-address"></span>
+    </div>
   </div>
 </div>
 
@@ -164,6 +136,13 @@
       element.setAttribute('id', index);
       textareaMusicText.appendChild(element);
     })
+  });
+
+  // Get ip address
+  ipcRenderer.send('ip-address');
+  ipcRenderer.on('ip-address', function (event, ipAddress) {
+    // console.log(ipAddress);
+    document.getElementById('ip-address').innerText = ipAddress + ':3001/remote'
   });
 
   // Moving between lines
