@@ -5,9 +5,9 @@ const fs = require('fs');
 const ip = require('ip');
 
 // Live reload
-require('electron-reload')(__dirname);
+// require('electron-reload')(__dirname);
 
-require('./api');
+// require('./api');
 
 let mainWindow;
 
@@ -25,9 +25,10 @@ function createWindow() {
 
   mainWindow.maximize();
 
-  mainWindow.loadFile(__dirname + '/app/index.html');
+  // mainWindow.loadFile(__dirname + '/app/index.html');
+  mainWindow.loadURL('http://192.168.0.100:3001/');
 
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', function () {
     mainWindow = null

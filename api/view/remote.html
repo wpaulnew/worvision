@@ -13,8 +13,16 @@
 </div>
 
 <script>
+
+  const ws = new WebSocket('ws://192.168.0.100:3001/');
+
+  ws.onmessage = function (event) {
+    document.getElementById('screen-text').innerText = JSON.parse(event.data).text;
+  };
+
+  /*
   setInterval(() => {
-    fetch('http://192.168.0.100:3001/current')
+    fetch('http://192.168.0.100:3001/current', {mode: 'cors'})
       .then((res) => res.json())
       .then(
         (res) => {
@@ -23,6 +31,8 @@
         }
       );
   }, 100);
+  */
+
 </script>
 
 </body>

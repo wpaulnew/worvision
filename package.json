@@ -5,25 +5,47 @@
   "main": "main.js",
   "scripts": {
     "dev": "nodemon --watch * --exec \"electron .\"",
-    "build": "electron-builder --linux --win",
-    "server": "nodemon /server/server.js",
-    "dev-ex": "concurrently --kill-others \"nodemon /server/server.js\" \"electron .\" "
+    "build": "electron-builder --linux",
+    "dev-ex": "concurrently --kill-others \"nodemon /server/server.js\" \"electron .\" ",
+
+    "electron": "electron .",
+    "webpack": "webpack --mode production",
+    "api": "nodemon api",
+
+    "webpack-api": "webpack --mode development & node api",
+
+    "start": "webpack --mode development & node api & electron ."
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/wpaulnew/worvision",
   "keywords": [],
-  "author": "wpaulnew <p.kobylyatskiy@gmail.com>",
+  "author": "wpaulnew <wpaulnew@gmail.com>",
   "license": "CC0-1.0",
   "devDependencies": {
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.6",
     "concurrently": "^4.1.2",
+    "css-loader": "^3.2.0",
     "electron": "^6.0.8",
     "electron-builder": "^21.2.0",
     "electron-installer-debian": "^2.0.0",
     "electron-reload": "^1.5.0",
-    "nodemon": "^1.19.2"
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "nodemon": "^1.19.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "style-loader": "^1.0.0",
+    "file-loader": "^4.2.0",
+    "webpack": "^4.40.2",
+    "webpack-cli": "^3.3.8",
+    "webpack-dev-server": "^3.8.0"
   },
   "dependencies": {
     "express": "^4.17.1",
-    "ip": "^1.1.5"
+    "ip": "^1.1.5",
+    "ws": "^7.1.2"
   },
   "build": {
     "appId": "com.worvision",

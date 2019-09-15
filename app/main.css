@@ -12,7 +12,7 @@ body {
   height: 100%;
 }
 
-.app {
+#app {
   /*width: 1280px;*/
   height: 100%;
   overflow: hidden;
@@ -97,15 +97,45 @@ body {
   font-weight: bold;
 }
 
+select {
+  text-align-last: right;
+}
+
+option {
+  direction: rtl;
+}
+
+#select-action-container {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+}
+
 #action-select-category {
   -webkit-appearance: none;
   -moz-appearance: none;
   text-indent: 1px;
   text-overflow: '';
-  background: url("./icons/SELECT.svg") no-repeat right center !important;
-  background-color: none !important;
+  /*background: url("./icons/SELECT.svg") no-repeat right center !important;*/
+  background-color: #F1F1F1 !important;
   font-size: 16px;
   border: none;
+  outline: none;
+}
+
+#action-select-category-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background: url("./icons/SELECT.svg") no-repeat center center !important;
+}
+
+.rotate-in {
+  transform: rotate(180deg);
+}
+
+.rotate-back {
+  transform: rotate(0deg);
 }
 
 /* /Column-one */
@@ -157,8 +187,8 @@ body {
   display: inline-block;
   background: url("./icons/FAVORITE.svg");
   background-repeat: no-repeat;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background-position: center;
 }
 
@@ -300,6 +330,7 @@ body {
 
 .column-two-down {
   height: 40px;
+  min-height: 40px;
   background: #F1F1F1;
   display: flex;
   flex-direction: row;
@@ -349,7 +380,7 @@ body {
 }
 
 #input-find {
-  /*width: 100%;*/
+  width: 100%;
   height: 40px;
   background: none;
   padding: 0 0 0 20px;
@@ -362,6 +393,7 @@ body {
 .active-text {
   font-weight: bold;
 }
+
 /* /Column-two */
 
 /* Column-three */
@@ -377,8 +409,27 @@ body {
 }
 
 .column-three-up {
+  width: 100%;
+  box-sizing: border-box;
   height: 40px;
   background: #F1F1F1;
+  padding: 0 20px 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.edit-text-tools {
+  flex-grow: 1;
+  display: flex;
+}
+
+.edit-text-tools div {
+  margin-right: 20px;
+}
+
+.output-views-roster {
+  margin-left: auto;
 }
 
 .column-three-center {
@@ -417,9 +468,11 @@ body {
 
 .column-three-down {
   height: 40px;
+  min-height: 40px;
   background: #F1F1F1;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 20px 0 20px;
   box-sizing: border-box;
 }
