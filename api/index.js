@@ -47,7 +47,7 @@ app.get('/config', (req, res) => {
 
 // Send songs
 app.get('/songs', (req, res) => {
-  fs.readdir(__dirname + '/resources', (err, songs) => {
+  fs.readdir(__dirname + '/resources/songs', (err, songs) => {
     res.json({songs});
   });
 });
@@ -57,28 +57,45 @@ app.get('/song', (req, res) => {
 
   const name = req.query.name;
 
-  fs.readFile(__dirname + '/resources/' + name + '.txt', "utf8",
-    function (error, data) {
-      if (error) throw error; // если возникла ошибка
+  if (name) {
+    fs.readFile(__dirname + '/resources/songs/' + name + '.txt', "utf8",
+      function (error, data) {
+        if (error) throw error; // если возникла ошибка
 
-      const text = data.split("\n");
-      // console.log(text);
+        const text = data.split("\n");
+        // console.log(text);
 
-      let formattedText = [];
+        let formattedText = [];
 
-      for (let i = 0; i < text.length; i++) {
-        if (text[i] !== '') {
-          // console.log('<p>' + text[i] + '</p>');
-          // formattedText.push('<p>' + text[i] + '</p>')
-          formattedText.push(text[i])
+        for (let i = 0; i < text.length; i++) {
+          if (text[i] !== '') {
+            // console.log('<p>' + text[i] + '</p>');
+            // formattedText.push('<p>' + text[i] + '</p>')
+            formattedText.push(text[i])
+          }
         }
-      }
 
-      // console.log(formattedText);
-      res.json({text: formattedText});
-    });
+        // console.log(formattedText);
+        res.json({text: formattedText});
+      });
+  }
 });
 
+// Get full list of songs
+app.get('/songs', (req, res) => {
+  fs.readdir(__dirname + '/resources', (err, songs) => {
+    res.json({songs});
+  });
+});
+
+// Get books of bible all
+app.get('/books', (req, res) => {
+  fs.readFile(__dirname + '/resources/bible/books.json', "utf8", (err, books) => {
+    res.json(JSON.parse(books));
+  });
+});
+
+// Get current text of song
 app.get('/current', (req, res) => {
   fs.readFile(__dirname + '/view/current.txt', "utf8",
     (error, text) => {
@@ -87,6 +104,12 @@ app.get('/current', (req, res) => {
     });
 });
 
+// Page of view bible text
+app.get('/screen', (req, res) => {
+  res.sendFile(path.join(__dirname + '/view/screen.html'));
+});
+
+// Page of view text
 app.get('/remote', (req, res) => {
   res.sendFile(path.join(__dirname + '/view/remote.html'));
 });

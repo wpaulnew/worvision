@@ -55,22 +55,18 @@ class Dropdownmenu extends Component {
     this.handleActive = this.handleActive.bind(this);
   }
 
-  componentDidMount() {
-    // console.log(this.props.options);
-  }
-
   handleActive() {
-    console.log('fdfdf');
     this.setState({active: !this.state.active})
   }
 
   render() {
     return (
       <div id='select-action-container'>
-        <select id="action-select-category" onClick={this.handleActive}>
+        <select id="action-select-category" onChange={this.props.take ? (e) => this.props.take(e.target.value) : null}
+                onClick={this.handleActive}>
           {
             this.props.options.map((option) => {
-              return <option key={option.id} value={option.id}>{option.name}</option>
+              return <option key={option.id} value={option.name}>{option.name}</option>
             })
           }
         </select>
@@ -88,12 +84,17 @@ class App extends Component {
       ip: '',
       songs: [],
       text: [],
-      line: ''
+      line: '',
+
+      books: [],
+      category: 'Песни',
+
+      name: '' // Name of song or book
     };
     this.openTextOfThisSong = this.openTextOfThisSong.bind(this);
     this.sendSelectedTextOnAllScreens = this.sendSelectedTextOnAllScreens.bind(this);
+    this.takeValueOfSelect = this.takeValueOfSelect.bind(this);
   }
-
 
   componentDidMount() {
 
@@ -120,6 +121,19 @@ class App extends Component {
         }
       );
 
+    // Get books
+    fetch('http://192.168.0.100:3001/books', {mode: 'cors'})
+      .then((books) => books.json())
+      .then(
+        (books) => {
+          // console.log(books[0].books);
+          this.setState({
+            books: books[0].books
+          });
+        }
+      );
+
+    // Connect to ws
     const ws = new WebSocket('ws://192.168.0.100:3001/');
 
     ws.onopen = () => {
@@ -146,6 +160,9 @@ class App extends Component {
   }
 
   openTextOfThisSong(name) {
+
+    this.setState({name: name});
+
     // Get song text by name
     fetch('http://192.168.0.100:3001/song?name=' + name, {mode: 'cors'})
       .then((song) => song.json())
@@ -165,6 +182,12 @@ class App extends Component {
     ws.onopen = () => {
       ws.send(JSON.stringify({text: line}));
     };
+  }
+
+  // Return value of from select component
+  takeValueOfSelect(value) {
+    // console.log(value);
+    this.setState({category: value});
   }
 
   render() {
@@ -236,25 +259,34 @@ class App extends Component {
       ],
     };
 
+    const songs =
+      this.state.songs !== undefined
+        ?
+        this.state.songs.map((song) => {
+          return <p key={song} onClick={() => this.openTextOfThisSong(song.replace('.txt', ''))}>{song.replace('.txt', '')}</p>
+        })
+        :
+        '';
+
+    const books =
+      this.state.books !== undefined
+        ?
+        this.state.books.map((book) => {
+          return <p key={book.id}>{book.name}</p>
+        })
+        :
+        '';
+
     return (
       <React.Fragment>
         <div className="column-one">
           <div className="column-one-up">
             <input type="text" id="input-find" placeholder="Поиск"/>
-            <Dropdownmenu options={options.category}/>
+            <Dropdownmenu take={this.takeValueOfSelect} options={options.category}/>
           </div>
           <div className="column-one-center">
             <div id="tracks" className="tracks">
-              {
-                this.state.songs !== undefined
-                  ?
-                  this.state.songs.map((song) => {
-                    return <p key={song}
-                              onClick={() => this.openTextOfThisSong(song.replace('.txt', ''))}>{song.replace('.txt', '')}</p>
-                  })
-                  :
-                  ''
-              }
+              {this.state.category !== undefined && this.state.category === 'Песни' ? songs : books}
             </div>
             <div className="favorites">
               <p className="selected-music">1. Я знаю кто я в тебе</p>
@@ -285,7 +317,7 @@ class App extends Component {
         </div>
         <div className="column-two">
           <div className="column-two-up">
-            <input type="text" id="input-music-name" placeholder="Назване выбраной песни"/>
+            <input type="text" id="input-music-name" value={this.state.name} placeholder="Назване выбраной песни"/>
           </div>
           <div className="column-two-center">
             <div id="textarea-music-text">

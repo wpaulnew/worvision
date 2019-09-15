@@ -48,6 +48,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
+  height: 100%;
 }
 
 .column-one-down {
@@ -64,10 +65,21 @@ body {
   padding: 20px 0 0 20px;
   box-sizing: border-box;
   flex-grow: 2;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.tracks::-webkit-scrollbar {
+  width: 0;
 }
 
 .tracks p {
   margin: 0 0 4px 0;
+  cursor: pointer;
+}
+
+.tracks p:last-child {
+  margin: 0 0 20px 0;
   cursor: pointer;
 }
 
@@ -82,7 +94,7 @@ body {
 .favorites {
   width: 100%;
   margin: 0;
-  padding: 20px 0 0 20px;
+  padding: 20px 0 20px 20px;
   box-sizing: border-box;
   flex-grow: 1;
   border-top: solid 1px #ECECEC;
