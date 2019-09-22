@@ -14,24 +14,12 @@
 
 <script>
 
-  const ws = new WebSocket('ws://192.168.0.100:3001/');
+  const ws = new WebSocket(`ws://192.168.0.27:3001/`);
 
   ws.onmessage = function (event) {
-    document.getElementById('screen-text').innerText = JSON.parse(event.data).text;
+    console.log(event.data);
+    document.getElementById('screen-text').innerText = JSON.parse(event.data).currentChosenTextLine;
   };
-
-  /*
-  setInterval(() => {
-    fetch('http://192.168.0.100:3001/current', {mode: 'cors'})
-      .then((res) => res.json())
-      .then(
-        (res) => {
-          document.getElementById('screen-text').innerText = res.text;
-          // console.log(text);
-        }
-      );
-  }, 100);
-  */
 
 </script>
 

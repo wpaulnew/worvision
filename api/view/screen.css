@@ -8,20 +8,43 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  background: #000000;
+  overflow-y: hidden;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
 }
 
 .view {
-  width: 1170px;
-  height: auto;
-  background: #ccc;
+  width: 100%;
+  height: 100%;
+  /*background: #ccc;*/
   font-size: 1.7em;
+  display: flex;
+  padding: 100px 10% 0 10%;
+  align-items: flex-start;
   font-family: 'Montserrat', sans-serif;
 }
 
+.view-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 #reference {
+  font-size: 1.6em;
+  text-align: center;
   position: relative;
   width: auto;
-  padding: 10px 0 10px 20px;
+  padding: 10px 20px 10px 20px;
   font-weight: bold;
   background: #F9F9F9;
   /*border: 2px solid #f1f1f1;*/
@@ -30,7 +53,10 @@ body {
 
 #text {
   padding: 10px 20px 10px 20px;
-  background: #999;
+  /*background: #999;*/
+  font-size: 2em;
+  color: #FFFFFF;
+  text-align: center;
   min-height: 120px;
   font-weight: bold;
   box-sizing: border-box;

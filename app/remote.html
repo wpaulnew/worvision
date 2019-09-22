@@ -12,19 +12,33 @@
 </div>
 
 <!-- You can also require other files to run in this process -->
-<script src="./renderer.js"></script>
+<!--<script src="./renderer.js"></script>-->
 <script>
+
+  // const ip = require('ip').address();
+  // const ws = new WebSocket(`ws://${ip}:3001/`);
+  //
+  // ws.onmessage = function (event) {
+  //   console.log(event.data);
+  //   // document.getElementById('screen-text').innerText = JSON.parse(event.data).text;
+  // };
 
   // setInterval(() => {
   //   document.getElementById('screen-text').innerText = localStorage.getItem('text');
   // }, 10000)
 
-  // const electron = require('electron');
-  // const {ipcRenderer} = require('electron');
+  const electron = require('electron');
+  const {ipcRenderer} = require('electron');
+
+  ipcRenderer.send('text', {text: 'Text from rendered'});
+  ipcRenderer.on('text', (err, res)=> {
+    console.log(res);
+  });
+
+  // setInterval(() => {
   //
-  // ipcRenderer.on('get-new-text', (event, response) => {
-  //   document.getElementById('screen-text').textContent = response.text;
-  // });
+  // }, 1000);
+
 </script>
 </body>
 </html>

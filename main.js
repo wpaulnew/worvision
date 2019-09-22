@@ -5,7 +5,7 @@ const fs = require('fs');
 const ip = require('ip');
 
 // Live reload
-// require('electron-reload')(__dirname);
+require('electron-reload')(__dirname);
 
 // require('./api');
 
@@ -26,7 +26,7 @@ function createWindow() {
   mainWindow.maximize();
 
   // mainWindow.loadFile(__dirname + '/app/index.html');
-  mainWindow.loadURL('http://192.168.0.100:3001/');
+  mainWindow.loadURL(`http://${ip.address()}:3001/`);
 
   mainWindow.webContents.openDevTools();
 
@@ -39,57 +39,6 @@ app.on('ready', () => {
   // Create windows
   createWindow();
 
-  // Get files
-  ipcMain.on('files', function (event, args) {
-
-    fs.readdir(__dirname + '/api/resources', (err, files) => {
-      // event.sender.send('files', JSON.parse(files));
-
-      event.sender.send('files', files);
-    });
-  });
-
-  // Read file
-  ipcMain.on('file', function (event, name) {
-
-    if (name !== null) {
-      fs.readFile(__dirname + '/api/resources/' + name + '.txt', "utf8",
-        function (error, data) {
-          if (error) throw error; // если возникла ошибка
-
-          const text = data.split("\n");
-          // console.log(text);
-
-          let formattedText = [];
-
-          for (let i = 0; i < text.length; i++) {
-            if (text[i] !== '') {
-              // console.log('<p>' + text[i] + '</p>');
-              // formattedText.push('<p>' + text[i] + '</p>')
-              formattedText.push(text[i])
-            }
-          }
-
-          // console.log(formattedText);
-          event.sender.send('file', formattedText);
-        });
-    }
-
-  });
-
-  // Write file
-  ipcMain.on('write', function (event, text) {
-    fs.writeFile(__dirname + '/api/view/current.txt', text, (error) => {
-      if (error) throw error;
-    });
-  });
-
-  // Send ip address
-  ipcMain.on('ip-address', function (event, args) {
-    event.sender.send('ip-address', ip.address());
-  });
-
-  /*
   // Create remote window
   let displays = electron.screen.getAllDisplays();
   let externalDisplay = displays.find((display) => {
@@ -108,10 +57,10 @@ app.on('ready', () => {
 
     remoteWindow.maximize();
 
-    // and load the index.html of the app.
-    remoteWindow.loadFile('./app/remote.html');
+    // remoteWindow.loadURL(`http://${ip.address()}:3001/remote`);
+    remoteWindow.loadURL(`http://${ip.address()}:3001/screen`);
   }
-  */
+
 });
 
 app.on('window-all-closed', function () {
