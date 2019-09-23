@@ -4,6 +4,7 @@ const http = require('http');
 const fs = require('fs');
 const WebSocket = require('ws');
 const sqlite3 = require('sqlite3').verbose();
+const md5 = require('md5');
 
 const app = express();
 
@@ -21,11 +22,11 @@ const wss = new WebSocket.Server({server}); //initialize the WebSocket server in
 
 // Send data to all connected clients
 wss.on('connection', function connection(ws) {
-  ws.on('message', function incoming(data) {
+  ws.on('message', function incoming(response) {
     wss.clients.forEach(function each(client) {
       if (client.readyState === WebSocket.OPEN) {
-        // console.log('FROM API', data);
-        client.send(data);
+        // console.log('FROM API', response);
+        client.send(response);
       }
     });
   });
@@ -33,8 +34,8 @@ wss.on('connection', function connection(ws) {
 
 // Database
 
-// Get songs from database
-app.get('/songs', (req, res) => {
+// Получить все песни
+app.get('/tracks', (req, res) => {
   const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
       console.error(err.message);
@@ -42,7 +43,7 @@ app.get('/songs', (req, res) => {
     console.log('Select all songs');
     db.serialize(function () {
       let songs = [];
-      db.all('SELECT * FROM songs', function (err, rows) {
+      db.all('SELECT * FROM tracks', function (err, rows) {
         // console.log(rows);
         res.json(rows);
       });
@@ -53,55 +54,68 @@ app.get('/songs', (req, res) => {
   });
 });
 
-// Send text of song by id
-app.get('/song', (req, res) => {
+// Получить инфорацию о песне по id
+app.get('/tracks/:id', (request, response) => {
 
-  const id = req.query.id;
+  const id = request.params.id;
 
-  if (id) {
-    const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
-      if (err) {
-        console.error(err.message);
-      }
-      console.log('Select song by id: ' + id);
-      db.serialize(function () {
-        db.all(`SELECT text FROM songs WHERE id = ${id}`, function (err, row) {
-            if (err) console.error(err);
+  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
 
-            const text = row.split("\n");
-            // console.log(text);
+    if (err) {
+      console.error(err.message);
+    }
 
-            let formattedText = [];
+    db.serialize(function () {
+      db.all(`SELECT * FROM tracks WHERE id = '${id}'`, function (err, rows) {
 
-            for (let i = 0; i < text.length; i++) {
-              if (text[i] !== '') {
-                // console.log('<p>' + text[i] + '</p>');
-                // formattedText.push('<p>' + text[i] + '</p>')
-                formattedText.push(text[i]);
-                for (let i = 0; i < text.length; i++) {
-                  if (text[i] !== '') {
-                    // console.log('<p>' + text[i] + '</p>');
-                    // formattedText.push('<p>' + text[i] + '</p>')
-                    formattedText.push(text[i])
-                  }
-                }
+          if (err) {
+            response.json(
+              {
+                success: false,
+                message: 'ERROR: GET DATA BY ID FROM DB',
               }
-
-              console.log(formattedText);
-              res.json({text: formattedText});
-            }
+            );
           }
-        );
-      });
 
-      db.close();
+          const track = {
+            id: rows[0].id,
+            name: rows[0].name,
+            text: rows[0].text
+          };
+
+          if (track.text.length === 0) {
+            console.log('Track text is empty');
+          }
+
+          if (track.text.length !== 0) {
+            console.log('Track text is not empty');
+
+            function clear(arr, value) {
+
+              return arr.filter(function (ele) {
+                return ele !== value;
+              });
+
+            }
+
+            track.text = clear(track.text.split("\n"), '');
+          }
+
+          response.json({track});
+        }
+      );
     });
-  }
+
+    db.close();
+  });
+
 });
 
-// Save edited text to Database
-app.post('/text', function (req, res) {
-  const id = req.body.id;
+// Добавить новую песню в базу данных
+app.post('/track', function (req, res) {
+
+  const id = md5(req.body.name);
+  const name = req.body.name;
   const text = req.body.text;
 
   const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
@@ -110,17 +124,19 @@ app.post('/text', function (req, res) {
     }
     console.log('Select all songs');
 
-    // const DATA = [id, text];
-    // const SQL = "UPDATE songs SET text = :text WHERE id = :id";
-
     db.serialize(function () {
       //Perform UPDATE operation
-      db.run(`UPDATE songs SET text = $text WHERE id = $id`, {$id: id, $text: text}, (err) => {
+      db.run(`INSERT INTO tracks (id, name, text) VALUES ($id, $name, $text)`, {
+        $id: id,
+        $name: name,
+        $text: text
+      }, (err) => {
         if (err) {
           console.error(err.message);
+        } else {
+          console.log('Song was added!');
+          res.json({success: true});
         }
-        console.log('Updated!');
-        res.json({success: true});
       });
     });
 
@@ -128,11 +144,12 @@ app.post('/text', function (req, res) {
   });
 });
 
-// Add new song to Database
-app.post('/add', function (req, res) {
+// Обновить данные о песни
+app.put('/track', function (req, res) {
+
+  const id = req.body.id;
   const name = req.body.name;
   const text = req.body.text;
-  // res.json({name: name, text: text});
 
   const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
@@ -145,11 +162,15 @@ app.post('/add', function (req, res) {
 
     db.serialize(function () {
       //Perform UPDATE operation
-      db.run(`INSERT INTO songs (name, text) VALUES ($name, $text)`, {$name: name, $text: text}, (err) => {
+      db.run(`UPDATE tracks SET name = $name, text = $text WHERE id = $id`, {
+        $id: id,
+        $name: name,
+        $text: text
+      }, (err) => {
         if (err) {
           console.error(err.message);
         }
-        console.log('Song was added!');
+        console.log('Updated!');
         res.json({success: true});
       });
     });
@@ -228,6 +249,7 @@ app.get('/verses', (req, res) => {
   });
 });
 
+
 // App
 
 app.use(express.static(__dirname + '/view'));
@@ -256,3 +278,5 @@ app.get('/screen', (req, res) => {
 server.listen(process.env.PORT || 3001, () => {
   console.log(`Server started on port ${server.address().port} :)`);
 });
+
+console.log('md5:', md5('md5'));

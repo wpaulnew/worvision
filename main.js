@@ -28,7 +28,7 @@ function createWindow() {
   // mainWindow.loadFile(__dirname + '/app/index.html');
   mainWindow.loadURL(`http://${ip.address()}:3001/`);
 
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', function () {
     mainWindow = null
@@ -57,8 +57,9 @@ app.on('ready', () => {
 
     remoteWindow.maximize();
 
-    // remoteWindow.loadURL(`http://${ip.address()}:3001/remote`);
     remoteWindow.loadURL(`http://${ip.address()}:3001/screen`);
+
+    remoteWindow.webContents.openDevTools();
   }
 
 });

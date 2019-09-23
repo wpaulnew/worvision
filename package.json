@@ -6,13 +6,13 @@
   "scripts": {
     "postinstall": "install-app-deps",
     "dev": "nodemon --watch * --exec \"electron .\"",
-    "build": "electron-builder --linux",
+    "build": "electron-builder --win",
     "dev-ex": "concurrently --kill-others \"nodemon /server/server.js\" \"electron .\" ",
     "electron": "electron .",
     "webpack": "webpack --mode production",
     "api": "nodemon api",
     "webpack-api": "webpack --mode development & node api",
-    "app": "webpack --mode development & node api & electron ."
+    "start": "webpack --mode development & node api & electron ."
   },
   "repository": "https://github.com/wpaulnew/worvision",
   "keywords": [],
@@ -45,6 +45,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "ip": "^1.1.5",
+    "md5": "^2.2.1",
     "sqlite3": "^4.1.0",
     "ws": "^7.1.2"
   },

@@ -6,19 +6,46 @@
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./remote.css">
 </head>
-<body>
+<body class="noselect">
 
 <div class="screen">
-  <p id="screen-text"></p>
+  <div id="bible">
+    <div class="bible-container">
+      <p id="bible-reference">Ефесянам 8:9</p>
+      <p id="bible-text">Но когда он помыслил это, - се, Ангел Господень явился ему во сне и сказал: Иосиф, сын Давидов!
+        не бойся принять Марию, жену твою, ибо родившееся в Ней есть от Духа Святаго</p>
+    </div>
+  </div>
+  <div id="track">
+    <p id="track-text"></p>
+  </div>
 </div>
 
 <script>
 
-  const ws = new WebSocket(`ws://192.168.0.27:3001/`);
-
+  const ws = new WebSocket(`ws://192.168.0.100:3001/`);
+  console.log(ws);
   ws.onmessage = function (event) {
     console.log(event.data);
-    document.getElementById('screen-text').innerText = JSON.parse(event.data).currentChosenTextLine;
+    const response = JSON.parse(event.data);
+
+    const divBible = document.getElementById('bible');
+    const divTrack = document.getElementById('track');
+
+    if (response.type === 'bible') {
+      divTrack.style.display = "none";
+      divBible.style.display = "flex";
+
+      document.getElementById('bible-reference').innerText = response.data.book + ' ' + response.data.chapter + ':' + response.data.id;
+      document.getElementById('bible-text').innerHTML = response.data.text;
+    }
+
+    if (response.type === 'tracks') {
+      divBible.style.display = "none";
+      divTrack.style.display = "flex";
+
+      document.getElementById('track-text').innerText = response.data.text;
+    }
   };
 
 </script>

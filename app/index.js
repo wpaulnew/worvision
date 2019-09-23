@@ -5,13 +5,12 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 
 // Components
-import ContentEditable from "./components/ContentEditable";
 import Timer from "./components/Timer";
 import Dropdownmenu from "./components/Dropdownenu";
 
 // Constants
-// const IP = '192.168.0.100';
-const IP = '192.168.1.9';
+const IP = '192.168.0.100';
+// const IP = '192.168.1.9';
 
 // Css
 import './main.css';
@@ -24,52 +23,57 @@ class App extends Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
+      // Settings
       ipAddress: '',
-      songs: [],
-      currentChosenText: [],
-      songId: '',
-      currentChosenTextLine: '',
+      category: 'tracks',
 
-      allowEditText: false,
-
-      allowAddNewSong: false, // Add new song to Db
-
+      // Bible
       books: [],
       chapters: [],
       verses: [],
-
       currentBookId: '',
+      currentBookName: '',
       currentChapterId: '',
       currentVerseText: '',
 
-      category: 'songs',
+      // tracks
+      tracks: [],
+      currentTrackId: '',
+      currentTrackName: '',
+      currentTrackText: [],
+      currentTrackTextLine: '',
+      allowAddingNewSong: false,
 
+      // Frame
       actionFrameName: 'Название песни',
       actionFrameText: '<p>Пиши текст песни здесь</p>',
       openActionFrame: false,
-
-      name: '', // Name of song or book,
-
-      html: '<p>Пиши текст песни здесь</p>' // Text of song in html
     };
     this.openTextOfThisSong = this.openTextOfThisSong.bind(this);
-    this.sendSelectedTextOnAllScreens = this.sendSelectedTextOnAllScreens.bind(this);
-    this.takeValueOfSelect = this.takeValueOfSelect.bind(this);
-    this.changeName = this.changeName.bind(this);
+
+    this.sendCurrentTrackTextWithSocket = this.sendCurrentTrackTextWithSocket.bind(this); // ws
+    this.sendCurrentChapterTextWithSocket = this.sendCurrentChapterTextWithSocket.bind(this); // ws
+
+    this.takeCurrentCategory = this.takeCurrentCategory.bind(this);
+    this.updateCurrentTrackName = this.updateCurrentTrackName.bind(this);
     this.handleEditedText = this.handleEditedText.bind(this);
-    this.actionEditText = this.actionEditText.bind(this);
-    this.actionSaveText = this.actionSaveText.bind(this);
 
     // Methods for work with bible
     this.getChapters = this.getChapters.bind(this);
     this.getVersesOfChosenChapter = this.getVersesOfChosenChapter.bind(this);
 
-    // Methods for work with songs
+    // Methods for work with tracks
     this.addSongToDb = this.addSongToDb.bind(this);
 
     // Frame
+    this.openActionFrame = this.openActionFrame.bind(this);
+    this.actionFrameEnterName = this.actionFrameEnterName.bind(this);
+    this.actionFrameEnterText = this.actionFrameEnterText.bind(this);
     this.actionFrameCancel = this.actionFrameCancel.bind(this);
+    this.actionFrameSave = this.actionFrameSave.bind(this);
+    this.actionFrameAdd = this.actionFrameAdd.bind(this);
   }
 
   componentDidMount() {
@@ -87,14 +91,14 @@ class App extends Component {
         }
       );
 
-    // Get songs
-    fetch(`http://${IP}:3001/songs`, {mode: 'cors'})
-      .then((songs) => songs.json())
+    // Get tracks
+    fetch(`http://${IP}:3001/tracks`, {mode: 'cors'})
+      .then((tracks) => tracks.json())
       .then(
-        (songs) => {
-          // console.log(books[0].books);
+        (tracks) => {
+          // console.log(tracks);
           this.setState({
-            songs: songs
+            tracks: tracks
           });
         }
       );
@@ -113,132 +117,115 @@ class App extends Component {
   }
 
   // Get song text by id
-
   openTextOfThisSong(id) {
 
     // Make this is server api
-    const text = this.state.songs.filter((song) => song.id === id)[0].text.split('\n');
+    const text = this.state.tracks.filter((song) => song.id === id)[0].text.split('\n');
 
-    let formattedText = [];
+    let currentTrackText = [];
 
     for (let i = 0; i < text.length; i++) {
       if (text[i] !== '') {
-        formattedText.push(text[i]);
+        currentTrackText.push(text[i]);
       }
     }
 
-    let html = '';
+    var actionFrameText = '';
 
     for (let i = 0; i < text.length; i++) {
       if (text[i] !== '' && text[i] !== ',') {
-        html += '<p>' + text[i] + '</p>';
+        actionFrameText += text[i] + '\n';
       }
     }
 
-    // console.log(formattedText);
+    // console.log('currentTrackText', currentTrackText);
+    // console.log('actionFrameText', actionFrameText);
 
     this.setState({
-      name: this.state.songs.filter((song) => song.id === id)[0].name,
-      currentChosenText: formattedText,
-      html: html,
-      songId: id
+      currentTrackId: id,
+      currentTrackName: this.state.tracks.filter((song) => song.id === id)[0].name,
+      currentTrackText: currentTrackText,
+      actionFrameName: this.state.tracks.filter((song) => song.id === id)[0].name,
+      actionFrameText: actionFrameText,
     });
   }
 
-  sendSelectedTextOnAllScreens(currentChosenTextLine) {
+  // WS send track text
+  sendCurrentTrackTextWithSocket(currentTrackTextLine) {
 
     const ws = new WebSocket(`ws://${IP}:3001/`);
 
-    this.setState({currentChosenTextLine: currentChosenTextLine});
+    this.setState({currentTrackTextLine: currentTrackTextLine});
 
     ws.onopen = () => {
-      ws.send(JSON.stringify({
-        currentChosenTextLine: this.state.currentChosenTextLine
-      }));
+      ws.send(JSON.stringify(
+        {
+          type: this.state.category,
+          data: {
+            text: this.state.currentTrackTextLine
+          }
+        }
+      ));
+    };
+  }
+
+  // WS send chapter text
+  sendCurrentChapterTextWithSocket(verseId, currentVerseText) {
+
+    const ws = new WebSocket(`ws://${IP}:3001/`);
+
+    this.setState({currentVerseText: currentVerseText});
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify(
+        {
+          type: this.state.category,
+          data: {
+            book: this.state.currentBookName,
+            chapter: this.state.currentChapterId,
+            id: verseId,
+            text: this.state.currentVerseText
+          }
+        }
+      ));
     };
   }
 
   // Return value of from select component
-  takeValueOfSelect(value) {
+  takeCurrentCategory(value) {
     // console.log(value);
-    const category = value === 'Песни' ? 'songs' : 'bible';
+    const category = value === 'Песни' ? 'tracks' : 'bible';
     this.setState({category: category});
   }
 
   // Change name of song
-  changeName(e) {
-    this.setState({name: e.target.value});
+  updateCurrentTrackName(e) {
+    this.setState({currentTrackName: e.target.value});
   }
 
   // Save edited text to Database
   handleEditedText(e) {
     console.log(e.target.value.replace(/,/g, ''));
-    this.setState({html: e.target.value.replace(/,/g, '')});
-  }
-
-  // Allow to edit text
-  actionEditText() {
-    // this.setState({allowEditText: true});
-    this.setState({openActionFrame: true});
-  }
-
-  actionSaveText() {
-    this.setState({allowEditText: false});
-
-    const id = this.state.songId;
-    const regex = /\<p>|\<\/p\>\<p>|\<\/p>/gi;
-
-    const text = this.state.html.replace(regex, '\n').substr(1);
-
-    let textReturnToObject = this.state.songs.filter((song) => song.id === id)[0].text.split('\n');
-
-    function clear(arr, value) {
-
-      return arr.filter(function (ele) {
-        return ele !== value;
-      });
-
-    }
-
-    const newtext = clear(textReturnToObject, "");
-
-
-    axios.post(`http://${IP}:3001/text`, {
-      id: id,
-      text: text
-    })
-      .then(function (reply) {
-        console.log('reply', reply.data);
-        if (reply.data.success) {
-          this.setState({currentChosenText: newtext});
-        }
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    this.setState({text: e.target.value.replace(/,/g, '')});
   }
 
   // Add new song to Db
   addSongToDb() {
-    axios.post(`http://${IP}:3001/add`, {
-      name: 'New Songs',
-      text: 'Something text bla....'
-    })
-      .then(function (reply) {
-        console.log(reply.data);
-        // if (reply.data.success) {
-        //   this.setState({currentChosenText: newtext});
-        // }
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    this.setState({
+      allowAddingNewSong: true,
+      openActionFrame: true,
+      actionFrameName: '',
+      actionFrameText: '<p>Пиши текст песни здесь</p>',
+    });
   }
 
   // Get chapters
-  getChapters(book_number) {
+  getChapters(book_number, long_name) {
 
-    this.setState({currentBookId: book_number});
+    this.setState({
+      currentBookId: book_number,
+      currentBookName: long_name
+    });
 
     // Get books
     fetch(`http://${IP}:3001/chapters?book=${book_number}`, {mode: 'cors'})
@@ -271,6 +258,11 @@ class App extends Component {
       })
   }
 
+  // Open editor
+  openActionFrame() {
+    this.setState({openActionFrame: true});
+  }
+
   // Enter the name in frame window
   actionFrameEnterName(e) {
     this.setState({actionFrameName: e.target.value})
@@ -278,12 +270,77 @@ class App extends Component {
 
   // Enter the text in frame window
   actionFrameEnterText(e) {
-
+    this.setState({actionFrameText: e.target.value})
   }
 
   // Cancel action from frame
   actionFrameCancel() {
     this.setState({openActionFrame: false})
+  }
+
+  // Save text or added song
+  actionFrameSave() {
+
+    this.setState({openActionFrame: false});
+
+    const id = this.state.currentTrackId;
+    const name = this.state.actionFrameName;
+    const text = this.state.actionFrameText;
+
+    var currentTrackText = this.state.actionFrameText.split('\n');
+
+    this.setState({
+      currentTrackName: name,
+      currentTrackText: currentTrackText
+    });
+
+    // Send changes to database
+    axios.put(`http://${IP}:3001/track`, {
+      id: id,
+      name: name,
+      text: text
+    })
+      .then(function (reply) {
+        console.log('reply', reply.data);
+        // if (reply.data.success === true) {
+
+        // }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+  }
+
+  // Save song to Db
+  actionFrameAdd() {
+
+    this.setState({
+      allowAddingNewSong: false,
+      openActionFrame: false,
+      actionFrameName: '',
+      actionFrameText: '',
+    });
+
+    const name = this.state.actionFrameName;
+    let text = this.state.actionFrameText;
+
+    const regex = /\<p>|\<\/p\>\<p>|\<\/p>/gi;
+    text = this.state.actionFrameText.replace(regex, '\n');
+
+    axios.post(`http://${IP}:3001/track`, {
+      name: name,
+      text: text
+    })
+      .then(function (reply) {
+        console.log(reply.data);
+        // if (reply.data.success) {
+        //   this.setState({currentTrackText: newtext});
+        // }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
 
   render() {
@@ -297,10 +354,6 @@ class App extends Component {
         {
           id: 1,
           name: 'Библия'
-        },
-        {
-          id: 2,
-          name: 'Текс'
         }
       ],
       "fonts": {
@@ -355,10 +408,10 @@ class App extends Component {
       ],
     };
 
-    const songs =
-      this.state.songs !== undefined
+    const tracks =
+      this.state.tracks !== undefined
         ?
-        this.state.songs.map((song) => {
+        this.state.tracks.map((song) => {
           return <p key={song.id} onClick={() => this.openTextOfThisSong(song.id)}>{song.name}</p>
         })
         :
@@ -368,7 +421,8 @@ class App extends Component {
       this.state.books !== undefined
         ?
         this.state.books.map((book) => {
-          return <p key={book.book_number} onClick={() => this.getChapters(book.book_number)}>{book.long_name}</p>
+          return <p key={book.book_number}
+                    onClick={() => this.getChapters(book.book_number, book.long_name)}>{book.long_name}</p>
         })
         :
         '';
@@ -381,18 +435,19 @@ class App extends Component {
         <div className="column-one">
           <div className="column-one-up">
             <input type="text" id="input-find" placeholder="Поиск"/>
-            <Dropdownmenu take={this.takeValueOfSelect} options={options.category}/>
+            <Dropdownmenu take={this.takeCurrentCategory} options={options.category}/>
           </div>
           <div className="column-one-center">
             <div id="tracks" className="tracks">
-              {this.state.category !== undefined && this.state.category === 'songs' ? songs : books}
+              {this.state.category !== undefined && this.state.category === 'tracks' ? tracks : books}
             </div>
-            <div className="favorites">
-              <p className="selected-music">1. Я знаю кто я в тебе</p>
-              <p>2. Славь душа Господа</p>
-            </div>
+            {/*<div className="favorites">*/}
+            {/*  <p className="selected-music">1. Я знаю кто я в тебе</p>*/}
+            {/*  <p>2. Славь душа Господа</p>*/}
+            {/*</div>*/}
           </div>
           <div className="column-one-down">
+
             <button id="action-button-add" onClick={this.addSongToDb} title='Добавить'>
               <span id="action-button-add-icon"/>
             </button>
@@ -400,17 +455,10 @@ class App extends Component {
               <span id="action-button-favorite-icon"/>
             </button>
 
-            {
-              this.state.allowEditText
-                ?
-                <button id="action-button-edit" onClick={this.actionSaveText} title='Сохранить'>
-                  <span id="action-button-edit-icon"/>
-                </button>
-                :
-                <button id="action-button-edit" onClick={this.actionEditText} title='Редактировать'>
-                  <span id="action-button-edit-icon"/>
-                </button>
-            }
+            <button id="action-button-edit" onClick={this.openActionFrame} title='Редактировать'>
+              <span id="action-button-edit-icon"/>
+            </button>
+
             <button id="action-button-remove" title='Удалить'>
               <span id="action-button-remove-icon"/>
             </button>
@@ -420,51 +468,65 @@ class App extends Component {
         <div className="column-two">
           <div className="column-two-up">
             {
-              this.state.category === 'songs'
+              this.state.category === 'tracks'
                 ?
-                <input type="text" id="input-music-name" onChange={this.changeName} value={this.state.name}
-                       placeholder="Назване выбраной песни"/>
+                <input
+                  type="text"
+                  id="input-music-name"
+                  onChange={this.updateCurrentTrackName}
+                  value={this.state.currentTrackName}
+                  placeholder="Назване выбраной песни"
+                />
                 :
-                <Dropdownmenu take={this.getVersesOfChosenChapter} options={this.state.chapters}/>
+                <div className='selected-book-props'>
+                  <p
+                    className='selected-book-props-book-name'>{this.state.currentBookName !== undefined ? this.state.currentBookName : ''}</p>
+                  <Dropdownmenu
+                    take={this.getVersesOfChosenChapter}
+                    options={this.state.chapters}
+                  />
+                </div>
             }
           </div>
           <div className="column-two-center">
-            {
-              this.state.allowEditText
-                ?
-                <ContentEditable
-                  id='textarea-music-text'
-                  html={this.state.html}
-                  disabled={false}
-                  onChange={this.handleEditedText}
-                />
-                :
-                <div id="textarea-music-text">
-                  <Switcher>
-                    {
-                      this.state.category === 'songs'
-                        ?
-                        this.state.currentChosenText !== undefined && this.state.currentChosenText !== null
-                          ?
-                          this.state.currentChosenText.map((currentChosenTextLine, index) => {
-                            return <p key={index}
-                                      onClick={() => this.sendSelectedTextOnAllScreens(currentChosenTextLine)}>{currentChosenTextLine}</p>
-                          })
-                          :
-                          <p>Выберите песню</p>
+            <div id="textarea-music-text">
+              <Switcher>
+                {
+                  this.state.category === 'tracks'
+                    ?
+                    this.state.currentTrackText !== undefined && this.state.currentTrackText !== null
+                      ?
+                      this.state.currentTrackText.map((currentTrackTextLine, index) => {
+                        return (
+                          <p
+                            key={index}
+                            onClick={() => this.sendCurrentTrackTextWithSocket(currentTrackTextLine)}
+                          >
+                            {currentTrackTextLine}
+                          </p>
+                        )
+                      })
+                      :
+                      <p>Выберите песню</p>
 
-                        :
-                        this.state.verses !== undefined && this.state.verses !== null
-                          ?
-                          this.state.verses.map((verse, index) => {
-                            return <p key={index}>{verse.verse}. {verse.text}</p>
-                          })
-                          :
-                          <p>Выберите книгу</p>
-                    }
-                  </Switcher>
-                </div>
-            }
+                    :
+                    this.state.verses !== undefined && this.state.verses !== null
+                      ?
+                      this.state.verses.map((currentVerseText, verseId) => {
+                        return (
+                          <p
+                            key={verseId}
+                            onClick={() => this.sendCurrentChapterTextWithSocket(currentVerseText.verse, currentVerseText.text)}
+                          >
+                            {currentVerseText.verse}. {currentVerseText.text}
+                          </p>
+                        )
+                      })
+                      :
+                      <p>Выберите книгу</p>
+                }
+              </Switcher>
+            </div>
           </div>
           <div className="column-two-down"></div>
         </div>
@@ -481,7 +543,7 @@ class App extends Component {
           </div>
           <div className="column-three-center">
             <div className="screen">
-              <p id="screen-text">{this.state.currentChosenTextLine !== '' ? this.state.currentChosenTextLine : ''}</p>
+              <p id="screen-text">{this.state.currentTrackTextLine !== '' ? this.state.currentTrackTextLine : ''}</p>
             </div>
             <div className="screen-control">
               <button id="action-button-show-screen">
@@ -499,17 +561,27 @@ class App extends Component {
         </div>
         <div className="action-frame-container" style={{"display": this.state.openActionFrame ? "flex" : "none"}}>
           <div className="action-frame">
-            <input type="text" id="input-enter-name" onChange={this.actionFrameEnterName} value={this.state.actionFrameName} placeholder="Название"/>
-            {/*<textarea type="text" id="input-enter-text" placeholder="Поиск"/>*/}
-            <ContentEditable
-              id='textarea-input-text'
-              html={this.state.actionFrameText}
-              disabled={false}
+            <input
+              type="text"
+              id="input-enter-name"
+              onChange={this.actionFrameEnterName}
+              value={this.state.actionFrameName}
+              placeholder="Название"
+            />
+            <textarea
+              id="textarea-input-text"
+              value={this.state.actionFrameText}
               onChange={this.actionFrameEnterText}
             />
             <div className="action-frame-controls">
               <button id="action-frame-false" onClick={this.actionFrameCancel}>Отмена</button>
-              <button id="action-frame-true">Сохранить</button>
+              {
+                this.state.allowAddingNewSong
+                  ?
+                  <button id="action-frame-true" onClick={this.actionFrameAdd}>Добавить</button>
+                  :
+                  <button id="action-frame-true" onClick={this.actionFrameSave}>Сохранить</button>
+              }
             </div>
           </div>
         </div>

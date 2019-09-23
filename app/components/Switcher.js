@@ -75,9 +75,15 @@ class Switcher extends React.Component {
             count: count - 2
           });
           allElements[count - 2].classList.add('active');
+
+          // Add selected text to state
+          allElements[count - 2].click();
         }
         if (allElements[count - 1] !== undefined && allElements[count - 1].innerText[0] !== '-') {
           allElements[count - 1].classList.add('active');
+
+          // Add selected text to state
+          allElements[count - 1].click();
         }
         if (count > 1 || (allElements[count - 1] !== undefined && allElements[count - 1].innerText[0] !== '-')) {
           allElements[count].classList.remove('active');
@@ -96,9 +102,15 @@ class Switcher extends React.Component {
             count: count + 2
           });
           allElements[count + 2].classList.add('active');
+
+          // Add selected text to state
+          allElements[count + 2].click();
         }
         if (allElements[count + 1] !== undefined && allElements[count + 1].innerText[0] !== '-') {
           allElements[count + 1].classList.add('active');
+
+          // Add selected text to state
+          allElements[count + 1].click();
         }
         if (count + 2 < allElements.length || (allElements[count + 1] !== undefined && allElements[count + 1].innerText[0] !== '-')) {
           allElements[count].classList.remove('active');

@@ -14,7 +14,76 @@ body {
   background-color: rgba(255, 255, 255, 0.0);
 }
 
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 .screen {
+  /*height: 100%;*/
+}
+
+/* Bible */
+
+#bible {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.bible-container {
+  width: 1170px;
+  min-width: 1170px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: auto;
+  /*background: #c5c5c5;*/
+  padding: 0 20px 0 20px;
+}
+
+#bible-reference {
+  font-size: 1.4em;
+  text-align: left;
+  position: relative;
+  width: auto;
+  padding: 10px 20px 10px 20px;
+  font-weight: bold;
+  background: #232732;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  margin: 0 0 0 20px;
+  top: 20px;
+}
+
+#bible-text {
+  width: 100%;
+  padding: 30px 20px 10px 20px;
+  background: #f3f3f3;
+  font-size: 1.55em; /* 1.9em */
+  color: #232732;
+  text-align: left;
+  height: 157px;
+  min-height: 120px;
+  font-weight: bold;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+#bible-text i {
+  font-weight: 500;
+}
+
+/* /Bible */
+
+/* Track */
+
+#track {
   width: 100%;
   height: 100%;
   display: flex;
@@ -23,11 +92,17 @@ body {
   box-sizing: border-box;
 }
 
-#screen-text {
+#track-text {
   width: 60%;
+  height: 78px;
   font-size: 2em;
   font-weight: bold;
   color: #FFFFFF;
   text-align: center;
+  justify-content: center;
+  align-items: flex-end;
+  display: flex;
   text-shadow: #000000 0 0 2.1px;
 }
+
+/* /Track */
