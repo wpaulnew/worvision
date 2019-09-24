@@ -15,7 +15,7 @@ class Timer extends React.Component {
     const minutes = d.getMinutes();
     const seconds = d.getSeconds();
 
-    const time = hours + ' : ' + minutes + ' : ' + (String(seconds).length === 1 ? '0' + seconds : seconds);
+    const time = hours + ' : ' + (String(minutes).length === 1 ? '0' + minutes : minutes) + ' : ' + (String(seconds).length === 1 ? '0' + seconds : seconds);
 
     this.setState(state => ({
       time: time
@@ -33,7 +33,7 @@ class Timer extends React.Component {
   render() {
 
     const d = new Date();
-    const time = d.getHours() + ' : ' + d.getMinutes() + ' : ' + (String(d.getSeconds()).length === 1 ? '0' + d.getSeconds() : d.getSeconds());
+    const time = d.getHours() + ' : ' + (String(d.getMinutes()).length === 1 ? '0' + d.getMinutes() : d.getMinutes()) + ' : ' + (String(d.getSeconds()).length === 1 ? '0' + d.getSeconds() : d.getSeconds());
 
     return (
       <React.Fragment>

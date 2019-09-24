@@ -72,6 +72,11 @@ body {
   font-weight: 500;
 }
 
+#bible-text j {
+  /*font-style: italic;*/
+  font-weight: normal;
+}
+
 /* Track */
 
 #track {

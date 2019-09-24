@@ -11,7 +11,7 @@
     "electron": "electron .",
     "webpack": "webpack --mode production",
     "api": "nodemon api",
-    "webpack-api": "webpack --mode development & node api",
+    "webpack-api": "webpack --mode development & node --inspect api",
     "app": "webpack --mode development & node api & electron ."
   },
   "repository": "https://github.com/wpaulnew/worvision",

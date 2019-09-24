@@ -86,9 +86,13 @@ body {
   width: 0;
 }
 
-.tracks p {
+.tracks p, .favorites p {
   margin: 0 0 4px 0;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
 }
 
 .tracks p:last-child {
@@ -218,6 +222,73 @@ option {
 }
 
 #action-button-favorite-text {
+  font-weight: 500;
+  font-size: 16px;
+  margin: 0 0 0 4px;
+}
+
+#action-button-add-to-favorite {
+  width: auto;
+  /*height: 40px;*/
+  display: flex;
+  /*align-items: center;*/
+  padding: 0 20px 0 20px;
+  border: none;
+  background: none;
+  margin: 0;
+  outline: none;
+  cursor: pointer;
+}
+
+#action-button-add-to-favorite-icon {
+  display: inline-block;
+  background: url("./icons/BOOKMARK.svg");
+  background-repeat: no-repeat;
+  width: 14px;
+  height: 14px;
+  background-position: center;
+  opacity: 0;
+}
+
+.tracks p:hover #action-button-add-to-favorite-icon {
+  background: url("./icons/BOOKMARK.svg");
+  opacity: 1;
+}
+
+.tracks p #action-button-add-to-favorite-icon:hover {
+  background: url("./icons/FAVORITE.svg");
+}
+
+#action-button-add-to-favorite-text {
+  font-weight: 500;
+  font-size: 16px;
+  margin: 0 0 0 4px;
+}
+
+#action-button-remove-from-favorite {
+  width: auto;
+  /*height: 40px;*/
+  display: flex;
+  /*align-items: center;*/
+  padding: 0 20px 0 20px;
+  border: none;
+  background: none;
+  margin: 0;
+  outline: none;
+  cursor: pointer;
+}
+
+#action-button-remove-from-favorite-icon {
+  display: inline-block;
+  background: url("./icons/FAVORITE.svg");
+  background-repeat: no-repeat;
+  width: 14px;
+  height: 14px;
+  background-position: center;
+  opacity: 1;
+}
+
+#action-button-remove-from-favorite-text {
   font-weight: 500;
   font-size: 16px;
   margin: 0 0 0 4px;

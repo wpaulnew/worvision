@@ -43,6 +43,9 @@ class App extends Component {
       currentTrackTextLine: '',
       allowAddingNewSong: false,
 
+      // Favorite tracks
+      favorites: [],
+
       // Frame
       actionFrameName: 'Название песни',
       actionFrameText: '<p>Пиши текст песни здесь</p>',
@@ -72,6 +75,10 @@ class App extends Component {
     this.actionFrameCancel = this.actionFrameCancel.bind(this);
     this.actionFrameSave = this.actionFrameSave.bind(this);
     this.actionFrameAdd = this.actionFrameAdd.bind(this);
+
+    // Favorites
+    this.addTrackToFavorite = this.addTrackToFavorite.bind(this);
+    this.removeTrackFromFavorite = this.removeTrackFromFavorite.bind(this);
   }
 
   componentDidMount() {
@@ -84,6 +91,18 @@ class App extends Component {
           // console.log(tracks);
           this.setState({
             tracks: tracks
+          });
+        }
+      );
+
+    // Get favorites tracks
+    fetch(`http://${location.host}/favorites`, {mode: 'cors'})
+      .then((favorites) => favorites.json())
+      .then(
+        (favorites) => {
+          // console.log(favorites);
+          this.setState({
+            favorites: favorites
           });
         }
       );
@@ -224,7 +243,7 @@ class App extends Component {
 
   // Return value of from select component
   takeCurrentCategory(value) {
-    // console.log(value);
+    console.log(value);
     const category = value === 'Песни' ? 'tracks' : 'bible';
     this.setState({category: category});
   }
@@ -265,8 +284,23 @@ class App extends Component {
         (chapters) => {
           // console.log(chapters);
           this.setState({
-            chapters: chapters
+            chapters: chapters,
+            currentChapterId: 1
           });
+
+          // Get Verses on selected chapter
+
+          axios.get(`http://${location.host}/verses?book=${this.state.currentBookId}&chapter=${this.state.currentChapterId}`)
+            .then((data) => {
+              console.log(data);
+              this.setState({
+                verses: data.data
+              });
+            })
+            .catch(function (error) {
+              // handle error
+              console.log(error);
+            })
         }
       );
   }
@@ -379,6 +413,42 @@ class App extends Component {
     this.setState({view: (view === 'Проектор') ? 'projector' : 'network'});
   }
 
+  // Add to favorite
+  addTrackToFavorite(id) {
+    // Send changes to database
+    axios.put(`http://${location.host}/favorites`, {
+      id: id,
+      favorite: 1
+    })
+      .then(function (reply) {
+        console.log('reply', reply.data);
+        // if (reply.data.success === true) {
+
+        // }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  // Remote from favorites
+  removeTrackFromFavorite(id) {
+    // Send changes to database
+    axios.put(`http://${location.host}/favorites`, {
+      id: id,
+      favorite: 0,
+    })
+      .then(function (reply) {
+        console.log('reply', reply.data);
+        // if (reply.data.success === true) {
+
+        // }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
   render() {
 
     const options = {
@@ -447,8 +517,25 @@ class App extends Component {
     const tracks =
       this.state.tracks !== undefined
         ?
-        this.state.tracks.map((song) => {
-          return <p key={song.id} onClick={() => this.openTextOfThisSong(song.id)}>{song.name}</p>
+        this.state.tracks.map((track) => {
+          return (
+            track.favorite !== 1
+              ?
+              <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
+                {track.name}
+                <button onClick={() => this.addTrackToFavorite(track.id)} id="action-button-add-to-favorite" title='Добавить в избранное'>
+                  <span id="action-button-add-to-favorite-icon"/>
+                </button>
+              </p>
+              :
+              <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
+                {track.name}
+                <button onClick={() => this.removeTrackFromFavorite(track.id)} id="action-button-remove-from-favorite"
+                        title='Удалить из избранного'>
+                  <span id="action-button-remove-from-favorite-icon"/>
+                </button>
+              </p>
+          );
         })
         :
         '';
@@ -462,6 +549,33 @@ class App extends Component {
         })
         :
         '';
+
+    const favorites =
+      this.state.favorites !== undefined
+        ?
+        this.state.favorites.map((track) => {
+          return (
+            track.favorite !== 1
+              ?
+              <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
+                {track.name}
+                <button onClick={() => this.addTrackToFavorite(track.id)} id="action-button-add-to-favorite" title='Добавить в избранное'>
+                  <span id="action-button-add-to-favorite-icon"/>
+                </button>
+              </p>
+              :
+              <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
+                {track.name}
+                <button onClick={() => this.removeTrackFromFavorite(track.id)} id="action-button-remove-from-favorite"
+                        title='Удалить из избранного'>
+                  <span id="action-button-remove-from-favorite-icon"/>
+                </button>
+              </p>
+          );
+        })
+        :
+        '';
+
 
     return (
       <React.Fragment>
@@ -477,10 +591,11 @@ class App extends Component {
             <div id="tracks" className="tracks">
               {this.state.category !== undefined && this.state.category === 'tracks' ? tracks : books}
             </div>
-            {/*<div className="favorites">*/}
-            {/*  <p className="selected-music">1. Я знаю кто я в тебе</p>*/}
-            {/*  <p>2. Славь душа Господа</p>*/}
-            {/*</div>*/}
+            <div className="favorites">
+              {/*<p className="selected-music">1. Я знаю кто я в тебе</p>*/}
+              {/*<p>2. Славь душа Господа</p>*/}
+              {favorites}
+            </div>
           </div>
           <div className="column-one-down">
 

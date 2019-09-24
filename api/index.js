@@ -40,11 +40,10 @@ app.get('/tracks', (req, res) => {
     if (err) {
       console.error(err.message);
     }
-    console.log('Select all songs');
     db.serialize(function () {
       let songs = [];
       db.all('SELECT * FROM tracks', function (err, rows) {
-        // console.log(rows);
+        console.log('Received tracks');
         res.json(rows);
       });
 
@@ -84,11 +83,11 @@ app.get('/tracks/:id', (request, response) => {
           };
 
           if (track.text.length === 0) {
-            console.log('Track text is empty');
+            // console.log('Track text is empty');
           }
 
           if (track.text.length !== 0) {
-            console.log('Track text is not empty');
+            // console.log('Track text is not empty');
 
             function clear(arr, value) {
 
@@ -101,6 +100,7 @@ app.get('/tracks/:id', (request, response) => {
             track.text = clear(track.text.split("\n"), '');
           }
 
+          console.log('Received data of the selected track');
           response.json({track});
         }
       );
@@ -122,7 +122,6 @@ app.post('/track', function (req, res) {
     if (err) {
       console.error(err.message);
     }
-    console.log('Select all songs');
 
     db.serialize(function () {
       //Perform UPDATE operation
@@ -134,7 +133,7 @@ app.post('/track', function (req, res) {
         if (err) {
           console.error(err.message);
         } else {
-          console.log('Song was added!');
+          console.log('New track has been added');
           res.json({success: true});
         }
       });
@@ -155,10 +154,6 @@ app.put('/track', function (req, res) {
     if (err) {
       console.error(err.message);
     }
-    console.log('Select all songs');
-
-    // const DATA = [id, text];
-    // const SQL = "UPDATE songs SET text = :text WHERE id = :id";
 
     db.serialize(function () {
       //Perform UPDATE operation
@@ -170,7 +165,7 @@ app.put('/track', function (req, res) {
         if (err) {
           console.error(err.message);
         }
-        console.log('Updated!');
+        console.log('Track data has been changed');
         res.json({success: true});
       });
     });
@@ -185,10 +180,9 @@ app.get('/books', (req, res) => {
     if (err) {
       console.error(err.message);
     }
-    console.log('Select all bible books from database');
     db.serialize(function () {
       db.all('SELECT * FROM books', function (err, rows) {
-        // console.log(rows);
+        console.log('Received books');
         res.json(rows);
       });
 
@@ -203,18 +197,18 @@ app.get('/books', (req, res) => {
 app.get('/chapters', (req, res) => {
 
   const book_number = req.query.book;
-  console.log(book_number);
+  // console.log(book_number);
 
   // SELECT chapter FROM verses WHERE book_number = 10 GROUP BY chapter
   const db = new sqlite3.Database(__dirname + '/resources/bible.db', sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
       console.error(err.message);
     }
-    console.log('Select chapter from book_number: ', book_number);
+
     db.serialize(function () {
       // Change chapter on name, because Dropdownmenu work it
       db.all(`SELECT chapter AS name FROM verses WHERE book_number = ${book_number} GROUP BY chapter`, function (err, rows) {
-        // console.log(rows);
+        console.log(`Chapters of book ${book_number} received`);
         res.json(rows);
       });
 
@@ -236,10 +230,10 @@ app.get('/verses', (req, res) => {
     if (err) {
       console.error(err.message);
     }
-    console.log('Select verses: ', book_number, chapter);
+
     db.serialize(function () {
       db.all(`SELECT verse, text FROM verses WHERE book_number = ${book_number} AND chapter = ${chapter}`, function (err, rows) {
-        // console.log(rows);
+        console.log(`Verses of book ${book_number} and chapter ${chapter} received`);
         res.json(rows);
       });
 
@@ -252,7 +246,7 @@ app.get('/verses', (req, res) => {
 // Получить инфорацию о песне по id
 app.get('/current', (request, response) => {
 
-  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
+  const db = new sqlite3.Database(__dirname + '/resources/config.db', sqlite3.OPEN_READWRITE, (err) => {
 
     if (err) {
       console.error(err.message);
@@ -269,7 +263,7 @@ app.get('/current', (request, response) => {
               }
             );
           }
-          // console.log(rows);
+          console.log('Received current save for display');
           response.json({
             data: rows[0].data
           });
@@ -288,7 +282,7 @@ app.put('/current', function (req, res) {
   const data = req.body.data;
   // console.log(data);
 
-  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
+  const db = new sqlite3.Database(__dirname + '/resources/config.db', sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
       console.error(err.message);
     }
@@ -301,7 +295,54 @@ app.put('/current', function (req, res) {
         if (err) {
           console.error(err.message);
         }
-        console.log('Current data was update');
+        console.log('Updated current save to display');
+        res.json({success: true});
+      });
+    });
+
+    db.close();
+  });
+});
+
+// Получить избранные песни
+app.get('/favorites', (req, res) => {
+  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    db.serialize(function () {
+      let songs = [];
+      db.all('SELECT * FROM tracks WHERE tracks.favorite = 1 AND tracks.active = 1 ', function (err, rows) {
+        console.log('Received favorites tracks');
+        res.json(rows);
+      });
+
+    });
+
+    db.close();
+  });
+});
+
+// Добавить в избранное или удалить
+app.put('/favorites', (req, res) => {
+
+  const id = req.body.id;
+  const favorite = req.body.favorite;
+
+  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    db.serialize(function () {
+      //Perform UPDATE operation
+      db.run(`UPDATE tracks SET favorite = $favorite WHERE id = $id`, {
+        $id: id,
+        $favorite: favorite,
+      }, (err) => {
+        if (err) {
+          console.error(err.message);
+        }
+        console.log('Track has been ' + (favorite ? 'added to' : 'remove from') + 'favorites');
         res.json({success: true});
       });
     });

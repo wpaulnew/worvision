@@ -56,18 +56,18 @@ body {
   text-align: left;
   position: relative;
   width: auto;
-  padding: 10px 20px 10px 20px;
+  padding: 5px 20px 5px 20px;
   font-weight: bold;
   background: #232732;
   color: #FFFFFF;
   text-transform: uppercase;
-  margin: 0 0 0 20px;
+  margin: 0 0 0 60px;
   top: 20px;
 }
 
 #bible-text {
   width: 100%;
-  padding: 30px 20px 10px 20px;
+  padding: 24px 20px 10px 20px;
   background: #f3f3f3;
   font-size: 1.55em; /* 1.9em */
   color: #232732;
@@ -81,6 +81,11 @@ body {
 
 #bible-text i {
   font-weight: 500;
+}
+
+#bible-text j {
+  /*font-style: italic;*/
+  font-weight: normal;
 }
 
 /* /Bible */
