@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
+import Iframe from 'react-iframe'
 
 // Supports library
 import axios from 'axios';
@@ -8,16 +9,11 @@ import axios from 'axios';
 import Timer from "./components/Timer";
 import Dropdownmenu from "./components/Dropdownenu";
 
-// Constants
-const IP = '192.168.0.100';
-// const IP = '192.168.1.9';
+console.log('Location host: ', location.host);
 
 // Css
 import './main.css';
 import Switcher from "./components/Switcher";
-
-// Connections
-// const ws = new WebSocket(`ws://${IP}:3001/`);
 
 class App extends Component {
 
@@ -28,6 +24,7 @@ class App extends Component {
       // Settings
       ipAddress: '',
       category: 'tracks',
+      view: 'projector', // projector or network
 
       // Bible
       books: [],
@@ -66,6 +63,7 @@ class App extends Component {
 
     // Methods for work with tracks
     this.addSongToDb = this.addSongToDb.bind(this);
+    this.takeCurrentView = this.takeCurrentView.bind(this);
 
     // Frame
     this.openActionFrame = this.openActionFrame.bind(this);
@@ -78,21 +76,8 @@ class App extends Component {
 
   componentDidMount() {
 
-    // Get config
-    fetch(`http://${IP}:3001/config`, {mode: 'cors'})
-      .then((config) => config.json())
-      .then(
-        (config) => {
-          // console.log(books[0].books);
-          console.log(config.ip);
-          this.setState({
-            ipAddress: config.ip
-          });
-        }
-      );
-
     // Get tracks
-    fetch(`http://${IP}:3001/tracks`, {mode: 'cors'})
+    fetch(`http://${location.host}/tracks`, {mode: 'cors'})
       .then((tracks) => tracks.json())
       .then(
         (tracks) => {
@@ -104,7 +89,7 @@ class App extends Component {
       );
 
     // Get books
-    fetch(`http://${IP}:3001/books`, {mode: 'cors'})
+    fetch(`http://${location.host}/books`, {mode: 'cors'})
       .then((books) => books.json())
       .then(
         (books) => {
@@ -153,7 +138,7 @@ class App extends Component {
   // WS send track text
   sendCurrentTrackTextWithSocket(currentTrackTextLine) {
 
-    const ws = new WebSocket(`ws://${IP}:3001/`);
+    const ws = new WebSocket(`ws://${location.host}/`);
 
     this.setState({currentTrackTextLine: currentTrackTextLine});
 
@@ -166,13 +151,34 @@ class App extends Component {
           }
         }
       ));
+
+      const data = JSON.stringify(
+        {
+          category: this.state.category,
+          data: {
+            text: this.state.currentTrackTextLine
+          }
+        }
+      );
+
+      // Update in the Db
+      axios.put(`http://${location.host}/current`, {data: data})
+        .then(function (reply) {
+          console.log(reply.data);
+          // if (reply.data.success) {
+          //   this.setState({currentTrackText: newtext});
+          // }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     };
   }
 
   // WS send chapter text
   sendCurrentChapterTextWithSocket(verseId, currentVerseText) {
 
-    const ws = new WebSocket(`ws://${IP}:3001/`);
+    const ws = new WebSocket(`ws://${location.host}/`);
 
     this.setState({currentVerseText: currentVerseText});
 
@@ -188,6 +194,31 @@ class App extends Component {
           }
         }
       ));
+
+      const data = JSON.stringify(
+        {
+          category: this.state.category,
+          data: {
+            book: this.state.currentBookName,
+            chapter: this.state.currentChapterId,
+            id: verseId,
+            text: this.state.currentVerseText
+          }
+        }
+      );
+
+      // Update in the Db
+      axios.put(`http://${location.host}/current`, {data: data})
+        .then(function (reply) {
+          console.log(reply.data);
+          // if (reply.data.success) {
+          //   this.setState({currentTrackText: newtext});
+          // }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
     };
   }
 
@@ -228,7 +259,7 @@ class App extends Component {
     });
 
     // Get books
-    fetch(`http://${IP}:3001/chapters?book=${book_number}`, {mode: 'cors'})
+    fetch(`http://${location.host}/chapters?book=${book_number}`, {mode: 'cors'})
       .then((chapters) => chapters.json())
       .then(
         (chapters) => {
@@ -245,7 +276,7 @@ class App extends Component {
     this.setState({currentChapterId: chapter});
     // Get verses
 
-    axios.get(`http://${IP}:3001/verses?book=${this.state.currentBookId}&chapter=${chapter}`)
+    axios.get(`http://${location.host}/verses?book=${this.state.currentBookId}&chapter=${chapter}`)
       .then((data) => {
         console.log(data);
         this.setState({
@@ -295,7 +326,7 @@ class App extends Component {
     });
 
     // Send changes to database
-    axios.put(`http://${IP}:3001/track`, {
+    axios.put(`http://${location.host}/track`, {
       id: id,
       name: name,
       text: text
@@ -328,7 +359,7 @@ class App extends Component {
     const regex = /\<p>|\<\/p\>\<p>|\<\/p>/gi;
     text = this.state.actionFrameText.replace(regex, '\n');
 
-    axios.post(`http://${IP}:3001/track`, {
+    axios.post(`http://${location.host}/track`, {
       name: name,
       text: text
     })
@@ -341,6 +372,11 @@ class App extends Component {
       .catch(function (error) {
         console.log(error);
       });
+  }
+
+  // Take current view
+  takeCurrentView(view) {
+    this.setState({view: (view === 'Проектор') ? 'projector' : 'network'});
   }
 
   render() {
@@ -399,11 +435,11 @@ class App extends Component {
       "views": [
         {
           id: 0,
-          name: 'Песня'
+          name: 'Проектор'
         },
         {
           id: 1,
-          name: 'Библия'
+          name: 'Сеть'
         }
       ],
     };
@@ -538,12 +574,41 @@ class App extends Component {
               <Dropdownmenu options={options.fonts.sizes}/>
             </div>
             <div className="output-views-roster">
-              <Dropdownmenu options={options.views}/>
+              <Dropdownmenu
+                take={this.takeCurrentView}
+                options={options.views}
+              />
             </div>
           </div>
           <div className="column-three-center">
             <div className="screen">
-              <p id="screen-text">{this.state.currentTrackTextLine !== '' ? this.state.currentTrackTextLine : ''}</p>
+              {
+                this.state.view === 'projector' && this.state.view !== undefined
+                  ?
+                  <Iframe
+                    url={`http://${location.host}/screen`}
+                    width="100%"
+                    height="100%"
+                    id="iframe-view-container"
+                    className="myClassname"
+                    display="initial"
+                    position="relative"
+                    frameBorder="0"
+                    ref={this.iframe}
+                  />
+                  :
+                  <Iframe
+                    url={`http://${location.host}/remote`}
+                    width="100%"
+                    height="100%"
+                    id="iframe-view-container"
+                    className="myClassname"
+                    display="initial"
+                    position="relative"
+                    frameBorder="0"
+                    ref={this.iframe}
+                  />
+              }
             </div>
             <div className="screen-control">
               <button id="action-button-show-screen">

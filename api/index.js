@@ -249,6 +249,66 @@ app.get('/verses', (req, res) => {
   });
 });
 
+// Получить инфорацию о песне по id
+app.get('/current', (request, response) => {
+
+  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
+
+    if (err) {
+      console.error(err.message);
+    }
+
+    db.serialize(function () {
+      db.all("SELECT * FROM current", function (err, rows) {
+
+          if (err) {
+            response.json(
+              {
+                success: false,
+                message: 'ERROR: SELECT * FROM current',
+              }
+            );
+          }
+          // console.log(rows);
+          response.json({
+            data: rows[0].data
+          });
+        }
+      );
+    });
+
+    db.close();
+  });
+
+});
+
+// Обновить текущие выбраные тексты песни или библии
+app.put('/current', function (req, res) {
+
+  const data = req.body.data;
+  // console.log(data);
+
+  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+
+    db.serialize(function () {
+      //Perform UPDATE operation
+      db.run(`UPDATE current SET data = $data`, {
+        $data: data,
+      }, (err) => {
+        if (err) {
+          console.error(err.message);
+        }
+        console.log('Current data was update');
+        res.json({success: true});
+      });
+    });
+
+    db.close();
+  });
+});
 
 // App
 

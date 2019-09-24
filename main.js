@@ -3,6 +3,7 @@ const electron = require('electron');
 const {app, BrowserWindow, ipcMain, webContents} = require('electron');
 const fs = require('fs');
 const ip = require('ip');
+const path = require('path');
 
 // Live reload
 require('electron-reload')(__dirname);
@@ -19,7 +20,8 @@ function createWindow() {
     width: 1280,
     height: 720,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 
@@ -55,7 +57,7 @@ app.on('ready', () => {
       }
     });
 
-    remoteWindow.maximize();
+    // remoteWindow.maximize();
 
     remoteWindow.loadURL(`http://${ip.address()}:3001/screen`);
 

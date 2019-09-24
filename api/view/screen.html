@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html id="iframe-view-container-screen">
 <head>
   <meta charset="UTF-8">
   <title>Screen</title>
@@ -11,8 +11,8 @@
 <div class="view">
 
   <div id="bible-container">
-    <p id="bible-reference">Ефесянам 8:9</p>
-    <p id="bible-text">Но когда он помыслил это, - се, Ангел Господень явился ему во сне и сказал: Иосиф, сын Давидов! не бойся принять Марию, жену твою, ибо родившееся в Ней есть от Духа Святаго</p>
+    <p id="bible-reference"></p>
+    <p id="bible-text"></p>
   </div>
 
   <div id="track">
@@ -22,6 +22,54 @@
 </div>
 
 <script>
+
+  // Get initial props from db
+  fetch(`http://${location.host}/current`, {mode: 'cors'})
+    .then((reply) => reply.json())
+    .then(
+      (reply) => {
+
+        const response = JSON.parse(reply.data);
+
+        const divBible = document.getElementById('bible-container');
+        const divTrack = document.getElementById('track');
+
+        if (response.category === 'bible') {
+          divTrack.style.display = "none";
+          divBible.style.display = "flex";
+
+          document.getElementById('bible-reference').innerText = response.data.book + ' ' + response.data.chapter + ':' + response.data.id;
+          document.getElementById('bible-text').innerHTML = response.data.text;
+        }
+
+        if (response.category === 'tracks') {
+          divBible.style.display = "none";
+          divTrack.style.display = "flex";
+
+          document.getElementById('track-text').innerText = response.data.text;
+        }
+      }
+    );
+
+  // Check for page open in frame or not
+  function inIframe () {
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  console.log(inIframe() ? 'Page open if frame': 'Page not open in frame');
+  if (inIframe()) {
+    document.getElementById('iframe-view-container-screen').style.zoom = '40%';
+    document.getElementById('iframe-view-container-screen').style.height = '100%';
+    document.getElementById('iframe-view-container-screen').style.display = 'flex';
+    document.getElementById('iframe-view-container-screen').style.justifyContent = 'center';
+
+    document.body.style.height = '100%';
+    document.body.style.boxSizing = 'border-box';
+  }
 
   const ws = new WebSocket(`ws://192.168.0.100:3001/`);
   console.log(ws);

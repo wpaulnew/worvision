@@ -489,6 +489,7 @@ option {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 320px;
 }
 
 #screen-text {
@@ -622,3 +623,15 @@ option {
 }
 
 /* /Action frame */
+
+#iframe-view-container-remote {
+  zoom: 50%;
+}
+
+#iframe-view-container {
+  /*border: none;*/
+}
+
+#iframe-view-container html {
+  zoom: 50%;
+}
