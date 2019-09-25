@@ -23,7 +23,7 @@ class App extends Component {
     this.state = {
       // Settings
       ipAddress: '',
-      category: 'tracks',
+      category: 'bible',
       view: 'projector', // projector or network
 
       // Bible
@@ -274,7 +274,8 @@ class App extends Component {
 
     this.setState({
       currentBookId: book_number,
-      currentBookName: long_name
+      currentBookName: long_name,
+      currentChapterId: 1
     });
 
     // Get books
@@ -284,8 +285,7 @@ class App extends Component {
         (chapters) => {
           // console.log(chapters);
           this.setState({
-            chapters: chapters,
-            currentChapterId: 1
+            chapters: chapters
           });
 
           // Get Verses on selected chapter
@@ -572,7 +572,7 @@ class App extends Component {
         '';
 
     const favorites =
-      this.state.favorites !== undefined
+      this.state.favorites !== undefined && this.state.favorites.length !== 0
         ?
         this.state.favorites.map((track) => {
           return (
@@ -613,11 +613,14 @@ class App extends Component {
             <div id="tracks" className="tracks">
               {this.state.category !== undefined && this.state.category === 'tracks' ? tracks : books}
             </div>
-            <div className="favorites">
-              {
-                this.state.category === 'tracks' ? favorites : ''
-              }
-            </div>
+            {
+              this.state.category === 'tracks' && this.state.favorites.length !== 0 ?
+                <div className="favorites">
+                  {favorites}
+                </div>
+                :
+                ''
+            }
           </div>
           <div className="column-one-down">
 

@@ -1,22 +1,17 @@
 const express = require('express');
 const path = require('path');
 const http = require('http');
-const fs = require('fs');
 const WebSocket = require('ws');
 const sqlite3 = require('sqlite3').verbose();
 const md5 = require('md5');
-
+const os = require('os');
 const app = express();
-
-// Get ip address
-const ip = require('ip');
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 
 //Web socket
-
 const server = http.createServer(app); //initialize a simple http server
 const wss = new WebSocket.Server({server}); //initialize the WebSocket server instance
 
@@ -362,7 +357,7 @@ app.get('/', (req, res) => {
 
 // Send config
 app.get('/config', (req, res) => {
-  res.json({'ip': ip.address() + ':' + server.address().port});
+  res.json({'ip': os.networkInterfaces().wlo1[0].address + ':' + server.address().port});
 });
 
 // Page of view text
@@ -381,3 +376,5 @@ server.listen(process.env.PORT || 3001, () => {
 });
 
 console.log('md5:', md5('md5'));
+
+console.log(os.networkInterfaces().wlo1[0].address);

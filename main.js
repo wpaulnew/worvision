@@ -20,8 +20,7 @@ function createWindow() {
     width: 1280,
     height: 720,
     webPreferences: {
-      nodeIntegration: true,
-      preload: path.join(__dirname, 'preload.js')
+      nodeIntegration: true
     }
   });
 
@@ -53,7 +52,8 @@ app.on('ready', () => {
       y: externalDisplay.bounds.y + 50,
       fullscreen: true,
       webPreferences: {
-        nodeIntegration: true
+        nodeIntegration: true,
+        preload: path.join(__dirname, 'preload.js')
       }
     });
 
@@ -61,7 +61,7 @@ app.on('ready', () => {
 
     remoteWindow.loadURL(`http://${ip.address()}:3001/screen`);
 
-    remoteWindow.webContents.openDevTools();
+    // remoteWindow.webContents.openDevTools();
   }
 
 });

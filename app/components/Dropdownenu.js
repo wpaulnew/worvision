@@ -7,13 +7,10 @@ class Dropdownmenu extends React.Component {
     this.state = {
       active: false,
       defaultValue: '',
-      initialValue: '',
       loaded: false
     };
     this.handleActive = this.handleActive.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.handleInitialValue = this.handleInitialValue.bind(this);
-    this.selectRef = React.createRef();
   }
 
   handleActive() {
@@ -23,11 +20,6 @@ class Dropdownmenu extends React.Component {
   handleChange(e) {
     this.props.take(e.target.value);
     this.setState({defaultValue: e.target.value});
-  }
-
-  handleInitialValue() {
-    console.log(this.selectRef);
-    console.log('sdfasdfsd');
   }
 
   render() {
@@ -41,7 +33,7 @@ class Dropdownmenu extends React.Component {
         >
           {
             this.props.options.map((option) => {
-              return <option key={option.name} value={option.name} >{option.name}</option>
+              return <option key={option.name} value={option.name}>{option.name}</option>
             })
           }
         </select>
