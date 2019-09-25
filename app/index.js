@@ -415,6 +415,15 @@ class App extends Component {
 
   // Add to favorite
   addTrackToFavorite(id) {
+
+    // Add to favorites
+    var track = this.state.tracks.filter((track) => track.id === id)[0];
+    track.favorite = 1;
+
+    this.setState(prevState => ({
+      favorites: [...prevState.favorites, track]
+    }));
+
     // Send changes to database
     axios.put(`http://${location.host}/favorites`, {
       id: id,
@@ -433,6 +442,17 @@ class App extends Component {
 
   // Remote from favorites
   removeTrackFromFavorite(id) {
+
+    // Remove from favorites
+    var tracks = this.state.tracks;
+    tracks.filter((track) => track.id === id)[0].favorite = 0;
+    // console.log(tracks);
+
+    this.setState({
+      favorites: this.state.favorites.filter(item => item.id !== id),
+      tracks: tracks
+    });
+
     // Send changes to database
     axios.put(`http://${location.host}/favorites`, {
       id: id,
@@ -523,7 +543,8 @@ class App extends Component {
               ?
               <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
                 {track.name}
-                <button onClick={() => this.addTrackToFavorite(track.id)} id="action-button-add-to-favorite" title='Добавить в избранное'>
+                <button onClick={() => this.addTrackToFavorite(track.id)} id="action-button-add-to-favorite"
+                        title='Добавить в избранное'>
                   <span id="action-button-add-to-favorite-icon"/>
                 </button>
               </p>
@@ -559,7 +580,8 @@ class App extends Component {
               ?
               <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
                 {track.name}
-                <button onClick={() => this.addTrackToFavorite(track.id)} id="action-button-add-to-favorite" title='Добавить в избранное'>
+                <button onClick={() => this.addTrackToFavorite(track.id)} id="action-button-add-to-favorite"
+                        title='Добавить в избранное'>
                   <span id="action-button-add-to-favorite-icon"/>
                 </button>
               </p>
@@ -592,9 +614,9 @@ class App extends Component {
               {this.state.category !== undefined && this.state.category === 'tracks' ? tracks : books}
             </div>
             <div className="favorites">
-              {/*<p className="selected-music">1. Я знаю кто я в тебе</p>*/}
-              {/*<p>2. Славь душа Господа</p>*/}
-              {favorites}
+              {
+                this.state.category === 'tracks' ? favorites : ''
+              }
             </div>
           </div>
           <div className="column-one-down">

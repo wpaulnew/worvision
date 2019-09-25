@@ -74,7 +74,7 @@
   const ws = new WebSocket(`ws://192.168.0.100:3001/`);
   console.log(ws);
   ws.onmessage = function (event) {
-    console.log(event.data);
+    // console.log(event.data);
     const response = JSON.parse(event.data);
 
     const divBible = document.getElementById('bible-container');
