@@ -73,12 +73,12 @@
   width: 100%;
   box-sizing: border-box;
   background: #FFFFFF;
-  bottom: 40px;
+  /*bottom: 40px;*/
 }
 
 .editor-frame-place {
   flex-grow: 1;
-  background: linear-gradient( #bbb, transparent 1px), linear-gradient( 90deg, #bbb, transparent 1px);
+  background: linear-gradient(#bbb, transparent 1px), linear-gradient(90deg, #bbb, transparent 1px);
   background-size: 10px 10px;
   overflow: hidden;
   margin: 0 1px 0 0;
@@ -90,18 +90,100 @@
 
 #editor-frame-element-box {
   width: 100px;
-  padding: 10px;
   cursor: move;
   z-index: 10;
-  background-color: #2196F3;
-  color: #fff;
-  /*position: sticky;*/
-  text-align: center;
+  text-align: left;
   border: none;
   box-sizing: border-box;
   display: flex;
+  align-items: flex-start;
+}
+
+#editor-frame-element-box i {
+  font-weight: 500;
+}
+
+#editor-frame-tools-fonts-min-size {
+  margin: 0 10px 0 10px;
+  font-size: 1.2em;
+}
+
+#editor-frame-tools-fonts-max-size {
+  margin: 0 10px 0 10px;
+  font-size: 1.2em;
+}
+
+.editor-frame-tools-fonts {
+  height: 40px;
+  min-width: 40px;
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+}
+
+#editor-frame-tools-fonts-text-align-left {
+  display: inline-block;
+  background: url('../icons/ALIGNLEFT.svg');
+  background-repeat: no-repeat;
+  width: 18px;
+  height: 18px;
+  background-position: center;
+  background-size: cover;
+  margin: 0 10px 0 10px;
+}
+
+#editor-frame-tools-fonts-text-align-center {
+  display: inline-block;
+  background: url('../icons/ALIGNCENTER.svg');
+  background-repeat: no-repeat;
+  width: 18px;
+  height: 18px;
+  background-position: center;
+  background-size: cover;
+  margin: 0 10px 0 10px;
+}
+
+#editor-frame-tools-fonts-text-align-right {
+  display: inline-block;
+  background: url('../icons/ALIGNRIGHT.svg');
+  background-repeat: no-repeat;
+  width: 18px;
+  height: 18px;
+  background-position: center;
+  background-size: cover;
+  margin: 0 10px 0 10px;
+}
+
+.editor-frame-tools-windows-resize {
+  height: 40px;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+#editor-frame-tools-window-minimize {
+  display: inline-block;
+  background: url('../icons/MINIMIZE.svg');
+  background-repeat: no-repeat;
+  width: 18px;
+  height: 18px;
+  background-position: center;
+  background-size: cover;
+  margin: 0 10px 0 10px;
+}
+
+#editor-frame-tools-window-maximize {
+  display: inline-block;
+  background: url('../icons/MAXIMIZE.svg');
+  background-repeat: no-repeat;
+  width: 18px;
+  height: 18px;
+  background-position: center;
+  background-size: cover;
+  margin: 0 10px 0 10px;
 }
 
 /* /Editor frame */

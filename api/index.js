@@ -355,12 +355,7 @@ app.get('/view', (req, res) => {
 // Обновить настройки отображения
 app.put('/view', (req, res) => {
 
-  const config = {
-    x: req.body.x,
-    y: req.body.y,
-    width: req.body.width,
-    height: req.body.height
-  };
+  const config = req.body.config;
 
   fs.writeFile(__dirname + '/view/config.json', JSON.stringify({config: config}), function (error) {
 

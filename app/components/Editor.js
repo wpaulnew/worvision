@@ -12,12 +12,13 @@ class Editor extends Component {
 
     this.state = {
       loaded: false,
+      elements: [],
 
-      x: 0,
-      y: 0,
-
-      width: 100,
-      height: 70
+      // x: 0,
+      // y: 0,
+      //
+      // width: 100,
+      // height: 70
     };
 
     // Editor
@@ -35,16 +36,21 @@ class Editor extends Component {
 
         this.setState({
           loaded: true,
-
-          x: config.x,
-          y: config.y,
-
-          draggableX: config.x,
-          draggableY: config.y,
-
-          width: config.width,
-          height: config.height
+          elements: config
         });
+
+        // this.setState({
+        //   loaded: true,
+        //
+        //   x: config.x,
+        //   y: config.y,
+        //
+        //   draggableX: config.x,
+        //   draggableY: config.y,
+        //
+        //   width: config.width,
+        //   height: config.height
+        // });
 
       }.bind(this))
       .catch(function (error) {
@@ -58,29 +64,36 @@ class Editor extends Component {
     // console.log('Data: ', data);
   }
 
-  handleStop(e, data) {
+  handleStop(e, data, id) {
     console.log('Event: ', e);
     console.log('Data: ', data);
 
-    console.log('X: ' + data.lastX, 'Y: ' + data.lastY);
+    // console.log('X: ' + data.lastX, 'Y: ' + data.lastY);
+
+    this.setState({
+      elements: this.state.elements.map(e => {
+        if (e.id === id) {
+          return {
+            ...e, props: {
+              ...e.props,
+              x: e.props.x + data.lastX,
+              y: e.props.y + data.lastY
+            }
+          }
+        }
+        return e;
+      })
+    });
+
+    const config = this.state.elements;
 
     // Send changes to database
     axios.put(`http://${location.host}/view`, {
-      x: this.state.x + data.lastX,
-      y: this.state.y + data.lastY,
-      width: this.state.width,
-      height: this.state.height
+      config: config
     })
       .then(function (response) {
 
-        var config = JSON.parse(response.data).config;
-        // // console.log(config);
-        this.setState({
-          x: config.x,
-          y: config.y,
-          width: config.width,
-          height: config.height
-        });
+        console.log(response);
 
       }.bind(this))
       .catch(function (error) {
@@ -91,50 +104,69 @@ class Editor extends Component {
 
   render() {
 
-
-    const resizableStyle =
-      this.state.x !== '' && this.state.y !== ''
-        ?
-        {transform: `translate(${this.state.x}px, ${this.state.y}px)`}
-        :
-        '';
-
     const elements = this.state.loaded
       ?
-      <Resizable
-        grid={[10, 10]}
-        style={resizableStyle}
-        size={{width: this.state.width, height: this.state.height}}
-        onResizeStop={(e, direction, ref, d) => {
-          this.setState({
-            width: this.state.width + d.width,
-            height: this.state.height + d.height,
-          });
-        }}
-      >
-        <Draggable
-          axis="both"
-          handle=".handle"
-          position={this.state.x !== '' && this.state.x !== '' ? {x: 0, y: 0} : {}}
-          grid={[10, 10]}
-          scale={1}
-          onStart={this.handleStart}
-          onDrag={this.handleDrag}
-          onStop={this.handleStop}>
+      this.state.elements !== undefined
+        ?
+        this.state.elements.map((element) => {
+          return (
+            <Resizable
+              key={element.id}
+              grid={[10, 10]}
+              style={{
+                backgroundColor: element.props.background,
+                position: 'absolute',
+                transform: `translate(${element.props.x}px, ${element.props.y}px)`
+              }}
+              size={{width: element.props.width, height: element.props.height}}
+              onResizeStop={(e, direction, ref, d) => {
 
-          <div className='handle' id='editor-frame-element-box'
-               style={{
-                 transform: `translate(${this.state.y}px, ${this.state.x}px)`,
-                 width: this.state.width,
-                 height: this.state.height
-               }}>
-            <p>Text</p>
-          </div>
+                // console.log(this.state.elements.filter((e) => e.id === element.id)[0]);
 
-        </Draggable>
-      </Resizable>
+                this.setState({
+                  ...elements,
+                  elements: this.state.elements.map(e => {
+                    if (e.id === element.id) {
+                      return {
+                        ...e, props: {
+                          ...e.props,
+                          width: element.props.width + d.width,
+                          height: element.props.height + d.height
+                        }
+                      }
+                    }
+                    return e;
+                  })
+                });
+              }}
+            >
+              <Draggable
+                axis="both"
+                handle=".handle"
+                position={this.state.x !== '' && this.state.x !== '' ? {x: 0, y: 0} : {}}
+                grid={[10, 10]}
+                scale={1}
+                onStart={this.handleStart}
+                onDrag={this.handleDrag}
+                onStop={(e, data) => this.handleStop(e, data, element.id)}>
+
+                <div className='handle' id='editor-frame-element-box'
+                     style={{
+                       transform: `translate(${element.props.x}px, ${element.props.y}px)`,
+                       width: element.props.width,
+                       height: element.props.height
+                     }}>
+                  <p style={element.props.font} dangerouslySetInnerHTML={{__html: element.props.text}}/>
+                </div>
+
+              </Draggable>
+            </Resizable>
+          );
+        })
+        :
+        null
       :
-      'loading';
+      null;
 
 
     return (
@@ -146,8 +178,17 @@ class Editor extends Component {
           </div>
 
           <div className='editor-frame-tools'>
-            <button>-</button>
-            <button>+</button>
+            <div className='editor-frame-tools-fonts'>
+              <span id='editor-frame-tools-fonts-min-size'>A-</span>
+              <span id='editor-frame-tools-fonts-max-size'>A+</span>
+              <span id='editor-frame-tools-fonts-text-align-left'></span>
+              <span id='editor-frame-tools-fonts-text-align-center'></span>
+              <span id='editor-frame-tools-fonts-text-align-right'></span>
+            </div>
+            <div className="editor-frame-tools-windows-resize">
+              <span id='editor-frame-tools-window-minimize'></span>
+              <span id='editor-frame-tools-window-maximize'></span>
+            </div>
           </div>
 
           <div className="editor-frame-controls">

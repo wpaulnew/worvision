@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<div class="view-container">
+<div id="view-container" class="view-container">
   <div className='handle' id='editor-frame-element-box' style="display: none">
     <p>Text</p>
   </div>
@@ -28,7 +28,7 @@
         .then(
           (response) => {
             const config = response.config;
-            console.log(config);
+
             box.style.transform = `translate(${config.x}px, ${config.y}px)`;
             box.style.width = `${config.width}px`;
             box.style.height = `${config.height}px`;
