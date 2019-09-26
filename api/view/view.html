@@ -13,7 +13,7 @@
 
 <div class="view-container">
   <div className='handle' id='editor-frame-element-box' style="display: none">
-    <p>Box text</p>
+    <p>Text</p>
   </div>
 </div>
 
@@ -30,7 +30,9 @@
             const config = response.config;
             console.log(config);
             box.style.transform = `translate(${config.x}px, ${config.y}px)`;
-            box.style.display = 'block';
+            box.style.width = `${config.width}px`;
+            box.style.height = `${config.height}px`;
+            box.style.display = 'flex';
           }
         );
     }, 100

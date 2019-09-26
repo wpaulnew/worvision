@@ -49,6 +49,7 @@
     "express": "^4.17.1",
     "ip": "^1.1.5",
     "md5": "^2.2.1",
+    "re-resizable": "^6.0.0",
     "react-draggable": "^4.0.3",
     "react-redux": "^7.1.0",
     "redux": "^4.0.4",

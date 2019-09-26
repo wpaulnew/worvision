@@ -98,6 +98,10 @@
   /*position: sticky;*/
   text-align: center;
   border: none;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* /Editor frame */
