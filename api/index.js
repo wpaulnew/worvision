@@ -4,6 +4,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const sqlite3 = require('sqlite3').verbose();
 const md5 = require('md5');
+const fs = require('fs');
 const os = require('os');
 const app = express();
 
@@ -346,6 +347,29 @@ app.put('/favorites', (req, res) => {
   });
 });
 
+// Получить настройки отображения
+app.get('/view', (req, res) => {
+  res.sendFile(path.join(__dirname + '/view/config.json'));
+});
+
+// Обновить настройки отображения
+app.put('/view', (req, res) => {
+
+  const config = {
+    x: req.body.x,
+    y: req.body.y
+  };
+
+  fs.writeFile(__dirname + '/view/config.json', JSON.stringify({config: config}), function (error) {
+
+    // if(error) throw error; // если возникла ошибка
+    console.log("Настройки отображения обновленны");
+    let data = fs.readFileSync(__dirname + '/view/config.json', "utf8");
+    res.json(data);
+
+  });
+});
+
 // App
 
 app.use(express.static(__dirname + '/view'));
@@ -368,6 +392,11 @@ app.get('/remote', (req, res) => {
 // Page of view bible text
 app.get('/screen', (req, res) => {
   res.sendFile(path.join(__dirname + '/view/screen.html'));
+});
+
+// Получить отображение
+app.get('/viewx', (req, res) => {
+  res.sendFile(path.join(__dirname + '/view/view.html'));
 });
 
 //start our server

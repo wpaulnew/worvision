@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import Iframe from 'react-iframe'
+import Iframe from 'react-iframe';
+import Draggable from 'react-draggable';
 
 // For redux
 import {connect} from "react-redux";
@@ -19,6 +20,7 @@ console.log('Location host: ', location.host);
 import './main.css';
 import Switcher from "./components/Switcher";
 import IDropdownenu from "./components/IDropdownenu";
+import Editor from "./components/Editor";
 
 class App extends Component {
 
@@ -48,6 +50,9 @@ class App extends Component {
       actionFrameName: 'Название песни',
       actionFrameText: '<p>Пиши текст песни здесь</p>',
       openActionFrame: false,
+
+      // Editor
+      openEditorFrame: true
     };
 
     this.openTextOfThisSong = this.openTextOfThisSong.bind(this);
@@ -76,7 +81,8 @@ class App extends Component {
     this.actionFrameAdd = this.actionFrameAdd.bind(this);
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+  }
 
   // Get song text by id
   openTextOfThisSong(id) {
@@ -454,7 +460,8 @@ class App extends Component {
               :
               <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
                 {track.name}
-                <button onClick={() => this.props._removeTrackFromFavorites(track.id)} id="action-button-remove-from-favorite"
+                <button onClick={() => this.props._removeTrackFromFavorites(track.id)}
+                        id="action-button-remove-from-favorite"
                         title='Удалить из избранного'>
                   <span id="action-button-remove-from-favorite-icon"/>
                 </button>
@@ -500,7 +507,8 @@ class App extends Component {
     return (
       <React.Fragment>
 
-        <div id="hide-background" style={{"display": this.state.openActionFrame ? "flex" : "none"}}></div>
+        <div id="hide-background"
+             style={{"display": this.state.openActionFrame || this.state.openEditorFrame ? "flex" : "none"}}></div>
 
         <div className="column-one">
           <div className="column-one-up">
@@ -608,6 +616,7 @@ class App extends Component {
               <Dropdownmenu options={options.fonts.names}/>
               <Dropdownmenu options={options.fonts.weight}/>
               <Dropdownmenu options={options.fonts.sizes}/>
+              <button onClick={() => this.setState({openEditorFrame: true})}>Настрока вида</button>
             </div>
             <div className="output-views-roster">
               <Dropdownmenu
@@ -660,6 +669,7 @@ class App extends Component {
             <Timer/>
           </div>
         </div>
+
         <div className="action-frame-container" style={{"display": this.state.openActionFrame ? "flex" : "none"}}>
           <div className="action-frame">
             <input
@@ -686,6 +696,10 @@ class App extends Component {
             </div>
           </div>
         </div>
+        {
+          this.state.openEditorFrame === true ? <Editor/> : ''
+        }
+
       </React.Fragment>
     );
   }

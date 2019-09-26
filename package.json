@@ -11,7 +11,7 @@
     "electron": "electron .",
     "webpack": "webpack --mode production",
     "api": "nodemon api",
-    "webpack-api": "webpack --mode development & node --inspect api",
+    "webpack-api": "webpack --mode development & node api",
     "app": "webpack --mode development & node api & electron ."
   },
   "repository": "https://github.com/wpaulnew/worvision",
@@ -49,11 +49,12 @@
     "express": "^4.17.1",
     "ip": "^1.1.5",
     "md5": "^2.2.1",
-    "sqlite3": "^4.1.0",
-    "ws": "^7.1.2",
-    "redux": "^4.0.4",
+    "react-draggable": "^4.0.3",
     "react-redux": "^7.1.0",
-    "redux-thunk": "^2.3.0"
+    "redux": "^4.0.4",
+    "redux-thunk": "^2.3.0",
+    "sqlite3": "^4.1.0",
+    "ws": "^7.1.2"
   },
   "build": {
     "appId": "com.worvision",
