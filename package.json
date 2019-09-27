@@ -5,20 +5,23 @@
   "main": "main.js",
   "scripts": {
     "postinstall": "install-app-deps",
-    "dev": "nodemon --watch * --exec \"electron .\"",
     "build": "electron-builder --linux",
     "dev-ex": "concurrently --kill-others \"nodemon /server/server.js\" \"electron .\" ",
     "electron": "electron .",
     "webpack": "webpack --mode production",
     "api": "nodemon api",
     "webpack-api": "webpack --mode development & node api",
-    "app": "webpack --mode development & node api & electron ."
+    "dev": "NODE_ENV=development webpack --mode development & node api & electron .",
+    "app": "NODE_ENV=application webpack --mode development & node api & electron ."
   },
   "repository": "https://github.com/wpaulnew/worvision",
   "keywords": [],
   "author": "wpaulnew <wpaulnew@gmail.com>",
   "license": "CC0-1.0",
   "devDependencies": {
+    "react-redux":"@5.0.2",
+    "redux-devtools": "@3.3.2",
+    "electron-devtools-installer": "@2.1.0",
     "@babel/core": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-react": "^7.0.0",

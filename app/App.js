@@ -12,15 +12,17 @@ import axios from 'axios';
 
 // Components
 import Timer from "./components/Timer";
-import Dropdownmenu from "./components/Dropdownenu";
+import Dropdowmenu from "./components/Dropdowmenu";
+import Switcher from "./components/Switcher";
+import Editor from "./components/Editor";
 
 console.log('Location host: ', location.host);
 
 // Css
 import './main.css';
-import Switcher from "./components/Switcher";
-import IDropdownenu from "./components/IDropdownenu";
-import Editor from "./components/Editor";
+
+// Electron
+const {ipcRenderer} = window.require('electron');
 
 class App extends Component {
 
@@ -38,6 +40,7 @@ class App extends Component {
       currentBookName: '',
       currentChapterId: '',
       currentVerseText: '',
+      showChapters: false,
 
       // tracks
       currentTrackId: '',
@@ -52,7 +55,7 @@ class App extends Component {
       openActionFrame: false,
 
       // Editor
-      openEditorFrame: true
+      openEditorFrame: false
     };
 
     this.openTextOfThisSong = this.openTextOfThisSong.bind(this);
@@ -67,6 +70,7 @@ class App extends Component {
     // Methods for work with bible
     this.getChapters = this.getChapters.bind(this);
     this.getVersesOfChosenChapter = this.getVersesOfChosenChapter.bind(this);
+    this.openChaptersRoster = this.openChaptersRoster.bind(this);
 
     // Methods for work with tracks
     this.addSongToDb = this.addSongToDb.bind(this);
@@ -82,6 +86,13 @@ class App extends Component {
   }
 
   componentDidMount() {
+    // console.log(ipcRenderer);
+    ipcRenderer.send('editor', JSON.stringify({react: 'React send the msg!'}));
+
+    // ipcRenderer.on('editor', (event, response) => {
+    //   console.log('RESPONSE', response);
+    // });
+
   }
 
   // Get song text by id
@@ -147,7 +158,7 @@ class App extends Component {
       // Update in the Db
       axios.put(`http://${location.host}/current`, {data: data})
         .then(function (reply) {
-          console.log(reply.data);
+          // console.log(reply.data);
           // if (reply.data.success) {
           //   this.setState({currentTrackText: newtext});
           // }
@@ -193,7 +204,7 @@ class App extends Component {
       // Update in the Db
       axios.put(`http://${location.host}/current`, {data: data})
         .then(function (reply) {
-          console.log(reply.data);
+          // console.log(reply.data);
           // if (reply.data.success) {
           //   this.setState({currentTrackText: newtext});
           // }
@@ -207,7 +218,7 @@ class App extends Component {
 
   // Return value of from select component
   takeCurrentCategory(value) {
-    console.log(value);
+    // console.log(value);
     const category = value === 'Песни' ? 'tracks' : 'bible';
     // this.setState({category: category});
     this.props._changeCurrentCategory(category);
@@ -226,12 +237,16 @@ class App extends Component {
 
   // Add new song to Db
   addSongToDb() {
-    this.setState({
-      allowAddingNewSong: true,
-      openActionFrame: true,
-      actionFrameName: '',
-      actionFrameText: '<p>Пиши текст песни здесь</p>',
-    });
+
+    // Send msg to open a window for add new song
+    ipcRenderer.send('add-new-song');
+
+    // this.setState({
+    //   allowAddingNewSong: true,
+    //   openActionFrame: true,
+    //   actionFrameName: '',
+    //   actionFrameText: '<p>Пиши текст песни здесь</p>',
+    // });
   }
 
   // Get chapters
@@ -240,7 +255,8 @@ class App extends Component {
     this.setState({
       currentBookId: book_number,
       currentBookName: long_name,
-      currentChapterId: 1
+      currentChapterId: 1,
+      showChapters: false
     });
 
     // Get books
@@ -257,7 +273,7 @@ class App extends Component {
 
           axios.get(`http://${location.host}/verses?book=${this.state.currentBookId}&chapter=${this.state.currentChapterId}`)
             .then((data) => {
-              console.log(data);
+              // console.log(data);
               this.setState({
                 verses: data.data
               });
@@ -272,12 +288,16 @@ class App extends Component {
 
   // Get verses
   getVersesOfChosenChapter(chapter) {
-    this.setState({currentChapterId: chapter});
+
+    this.setState({
+      currentChapterId: chapter,
+      showChapters: false
+    });
     // Get verses
 
     axios.get(`http://${location.host}/verses?book=${this.state.currentBookId}&chapter=${chapter}`)
       .then((data) => {
-        console.log(data);
+        // console.log(data);
         this.setState({
           verses: data.data
         });
@@ -363,7 +383,7 @@ class App extends Component {
       text: text
     })
       .then(function (reply) {
-        console.log(reply.data);
+        // console.log(reply.data);
         // if (reply.data.success) {
         //   this.setState({currentTrackText: newtext});
         // }
@@ -378,67 +398,72 @@ class App extends Component {
     this.setState({view: (view === 'Проектор') ? 'projector' : 'network'});
   }
 
+  // Show chapters roster
+  openChaptersRoster(boolean) {
+    this.setState({showChapters: boolean})
+  }
+
   render() {
 
     const options = {
       "category": [
         {
           id: 0,
-          name: 'Песни'
+          value: 'Песни'
         },
         {
           id: 1,
-          name: 'Библия'
+          value: 'Библия'
         }
       ],
       "fonts": {
         "names": [
           {
             id: 0,
-            name: 'Montserrat'
+            value: 'Montserrat'
           },
           {
             id: 1,
-            name: 'Roboto'
+            value: 'Roboto'
           },
           {
             id: 2,
-            name: 'Arial'
+            value: 'Arial'
           }
         ],
         "weight": [
           {
             id: 0,
-            name: 'normal'
+            value: 'normal'
           },
           {
             id: 1,
-            name: 'bold'
+            value: 'bold'
           }
         ],
         "sizes": [
           {
             id: 0,
-            name: '16'
+            value: '16'
           },
           {
             id: 1,
-            name: '32'
+            value: '32'
           },
           {
             id: 2,
-            name: '64'
+            value: '64'
           }
         ]
       },
       "views": [
         {
           id: 0,
-          name: 'Проектор'
+          value: 'Проектор'
         },
         {
           id: 1,
-          name: 'Сеть'
+          value: 'Сеть'
         }
       ],
     };
@@ -503,6 +528,14 @@ class App extends Component {
         :
         '';
 
+    const chapterNumbers =
+      this.state.chapters.length !== 0
+        ?
+        this.state.chapters.map((chapter, index) => {
+          return (
+            <p key={index} onClick={()=>this.getVersesOfChosenChapter(chapter.name)}>{chapter.name}</p>)
+        })
+        : '';
 
     return (
       <React.Fragment>
@@ -513,7 +546,11 @@ class App extends Component {
         <div className="column-one">
           <div className="column-one-up">
             <input type="text" id="input-find" placeholder="Поиск"/>
-            <Dropdownmenu take={this.takeCurrentCategory} options={options.category}/>
+            <Dropdowmenu
+              name='value'
+              value={(value) => this.takeCurrentCategory(value)}
+              values={options.category}
+            />
           </div>
           <div className="column-one-center">
             <div id="tracks" className="tracks">
@@ -531,11 +568,9 @@ class App extends Component {
             <button id="action-button-favorite" title='Избранное'>
               <span id="action-button-favorite-icon"/>
             </button>
-
             <button id="action-button-edit" onClick={this.openActionFrame} title='Редактировать'>
               <span id="action-button-edit-icon"/>
             </button>
-
             <button id="action-button-remove" title='Удалить'>
               <span id="action-button-remove-icon"/>
             </button>
@@ -555,20 +590,42 @@ class App extends Component {
                     value={this.state.currentTrackName}
                     placeholder="Назване выбраной песни"
                   />
-                  {/*<IDropdownenu/>*/}
                 </React.Fragment>
                 :
                 <div className='selected-book-props'>
                   <p
                     className='selected-book-props-book-name'>{this.state.currentBookName !== undefined ? this.state.currentBookName : ''}</p>
-                  <Dropdownmenu
-                    take={this.getVersesOfChosenChapter}
-                    options={this.state.chapters}
-                  />
+                  {
+                    this.state.chapters.length !== 0
+                      ?
+                      <Dropdowmenu
+                        show={false}
+                        active={this.state.showChapters}
+                        click={(boolean) => this.openChaptersRoster(boolean)}
+                        name='name'
+                        values={[{name: this.state.currentChapterId}]}
+                      />
+                      :
+                      ''
+                  }
                 </div>
             }
           </div>
           <div className="column-two-center">
+
+            <div
+              id="hide-background"
+              style={{
+                "display": this.state.showChapters ? "flex" : "none",
+                "width":"320px"
+              }}
+            ></div>
+
+            <div className="roster-of-chapters">
+              {this.state.showChapters ? chapterNumbers : ''}
+            </div>
+
+
             <div id="textarea-music-text">
               <Switcher>
                 {
@@ -613,15 +670,16 @@ class App extends Component {
         <div className="column-three">
           <div className="column-three-up">
             <div className="edit-text-tools">
-              <Dropdownmenu options={options.fonts.names}/>
-              <Dropdownmenu options={options.fonts.weight}/>
-              <Dropdownmenu options={options.fonts.sizes}/>
-              <button onClick={() => this.setState({openEditorFrame: true})}>Настрока вида</button>
+              {/*<Dropdownmenu options={options.fonts.names}/>*/}
+              {/*<Dropdownmenu options={options.fonts.weight}/>*/}
+              {/*<Dropdownmenu options={options.fonts.sizes}/>*/}
+              {/*<button onClick={() => this.setState({openEditorFrame: true})}>Настрока вида</button>*/}
             </div>
             <div className="output-views-roster">
-              <Dropdownmenu
-                take={this.takeCurrentView}
-                options={options.views}
+              <Dropdowmenu
+                name='value'
+                value={(value) => this.takeCurrentView(value)}
+                values={options.views}
               />
             </div>
           </div>

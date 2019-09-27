@@ -1,0 +1,51 @@
+.idropdownenu {
+  /*position: absolute;*/
+  height: 40px;
+  z-index: 2;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.idropdownenu p {
+  margin: 0;
+  padding: 4px;
+  cursor: pointer;
+  background: #FFFFFF;
+}
+
+.idropdownenu-menu {
+  z-index: 2;
+  width: 100%;
+}
+
+.idropdownenu-action-button {
+  min-height: 40px;
+  background: #F1F1F1;
+  border: none;
+  outline: none;
+  padding: 0 10px 0 10px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.action-select-category-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background: url("../icons/SELECT.svg") no-repeat center center !important;
+}
+
+.action-select-category-icon-rotate {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background: url("../icons/SELECT.svg") no-repeat center center !important;
+  transform: rotate(180deg);
+}
+
+.action-select-category-value {
+  font-size: 1.2em;
+}
