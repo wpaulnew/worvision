@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import Draggable from "react-draggable";
+import {Resizable} from "re-resizable";
 import axios from "axios";
 
 import './Editor.css';
-import {Resizable} from "re-resizable";
 
 class Editor extends Component {
 
@@ -179,14 +179,15 @@ class Editor extends Component {
 
           <div className='editor-frame-tools'>
             <div className='editor-frame-tools-fonts'>
-              <span id='editor-frame-tools-fonts-min-size'>A-</span>
-              <span id='editor-frame-tools-fonts-max-size'>A+</span>
+              <span id='editor-frame-tools-fonts-regular'></span>
+              <span id='editor-frame-tools-fonts-italic'></span>
+              <span id='editor-frame-tools-fonts-bold'></span>
               <span id='editor-frame-tools-fonts-text-align-left'></span>
               <span id='editor-frame-tools-fonts-text-align-center'></span>
               <span id='editor-frame-tools-fonts-text-align-right'></span>
             </div>
             <div className="editor-frame-tools-windows-resize">
-              <span id='editor-frame-tools-window-minimize'></span>
+              {/*<span id='editor-frame-tools-window-minimize'></span>*/}
               <span id='editor-frame-tools-window-maximize'></span>
             </div>
           </div>

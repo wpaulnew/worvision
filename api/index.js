@@ -10,7 +10,12 @@ const app = express();
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
+app.use(bodyParser.urlencoded({
+  extended: false,
+  limit: '50mb',
+})); // support encoded bodies
+
+//Set Request Size Limit;
 
 //Web socket
 const server = http.createServer(app); //initialize a simple http server
@@ -29,6 +34,28 @@ wss.on('connection', function connection(ws) {
 });
 
 // Database
+
+// Загрузить экран на сервер
+app.post('/upload', (req, res) => {
+
+  var base64Data = req.body.imgBase64.replace(/^data:image\/png;base64,/, "");
+  var path = req.body.fileName + "." + "png";
+  fs.writeFile(__dirname + '/resources/upload/' + path, base64Data, "base64", function (err) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send("success");
+    }
+  });
+
+});
+
+// Получить canvas текущего экрана
+app.get('/canvas/:id', (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  res.sendFile(path.join(__dirname + '/resources/upload/' + id + '.png'));
+});
 
 // Получить все песни
 app.get('/tracks', (req, res) => {
@@ -153,6 +180,9 @@ app.put('/track', function (req, res) {
 
     db.serialize(function () {
       //Perform UPDATE operation
+
+      // console.log(text[0]);
+
       db.run(`UPDATE tracks SET name = $name, text = $text WHERE id = $id`, {
         $id: id,
         $name: name,
@@ -160,8 +190,9 @@ app.put('/track', function (req, res) {
       }, (err) => {
         if (err) {
           console.error(err.message);
+        } else {
+          console.log('Track data has been changed');
         }
-        console.log('Track data has been changed');
         res.json({success: true});
       });
     });
@@ -349,7 +380,7 @@ app.put('/favorites', (req, res) => {
 
 // Получить настройки отображения
 app.get('/view', (req, res) => {
-  res.sendFile(path.join(__dirname + '/view/config.json'));
+  res.sendFile(path.join(__dirname + '/resources/config.json'));
 });
 
 // Обновить настройки отображения
@@ -357,11 +388,11 @@ app.put('/view', (req, res) => {
 
   const config = req.body.config;
 
-  fs.writeFile(__dirname + '/view/config.json', JSON.stringify({config: config}), function (error) {
+  fs.writeFile(__dirname + '/resources/config.json', JSON.stringify({config: config}), function (error) {
 
     // if(error) throw error; // если возникла ошибка
     console.log("Настройки отображения обновленны");
-    let data = fs.readFileSync(__dirname + '/view/config.json', "utf8");
+    let data = fs.readFileSync(__dirname + '/resources/config.json', "utf8");
     res.json(data);
 
   });
@@ -369,26 +400,17 @@ app.put('/view', (req, res) => {
 
 // App
 
-app.use(express.static(__dirname + '/view'));
-app.use(express.static(__dirname + '/build'));
+// app.use("/", express.static(__dirname + '/view'));
+// app.use(express.static(path.join(__dirname, './view')));
+app.use(express.static(path.join(__dirname, './build')));
 
-app.get('/', (req, res) => {
+app.get('*', (req, res) => {
   res.sendFile(path.join(path.join(__dirname, './build'), 'index.html'));
 });
 
 // Send config
 app.get('/config', (req, res) => {
   res.json({'ip': os.networkInterfaces().wlo1[0].address + ':' + server.address().port});
-});
-
-// Page of view text
-app.get('/remote', (req, res) => {
-  res.sendFile(path.join(__dirname + '/view/remote.html'));
-});
-
-// Page of view bible text
-app.get('/screen', (req, res) => {
-  res.sendFile(path.join(__dirname + '/view/screen.html'));
 });
 
 // Получить отображение

@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
-import Iframe from 'react-iframe';
-import Draggable from 'react-draggable';
+import md5 from 'md5';
 
 // For redux
 import {connect} from "react-redux";
@@ -14,15 +13,21 @@ import axios from 'axios';
 import Timer from "./components/Timer";
 import Dropdowmenu from "./components/Dropdowmenu";
 import Switcher from "./components/Switcher";
-import Editor from "./components/Editor";
 
 console.log('Location host: ', location.host);
 
 // Css
 import './main.css';
 
+import {Link} from "react-router-dom";
+
 // Electron
-const {ipcRenderer} = window.require('electron');
+
+// window.electron = window.electron = window.require('electron');
+// console.log(window.electron);
+
+// const fs = electron.remote.require('fs');
+// const ipcRenderer  = electron.ipcRenderer;
 
 class App extends Component {
 
@@ -47,15 +52,12 @@ class App extends Component {
       currentTrackName: '',
       currentTrackText: [],
       currentTrackTextLine: '',
-      allowAddingNewSong: false,
-
-      // Frame
-      actionFrameName: 'Название песни',
-      actionFrameText: '<p>Пиши текст песни здесь</p>',
-      openActionFrame: false,
 
       // Editor
-      openEditorFrame: false
+      openEditorFrame: false,
+
+      // Canvas names
+      canvas: ''
     };
 
     this.openTextOfThisSong = this.openTextOfThisSong.bind(this);
@@ -83,11 +85,13 @@ class App extends Component {
     this.actionFrameCancel = this.actionFrameCancel.bind(this);
     this.actionFrameSave = this.actionFrameSave.bind(this);
     this.actionFrameAdd = this.actionFrameAdd.bind(this);
+
+    this.openEditorWindow = this.openEditorWindow.bind(this);
   }
 
   componentDidMount() {
     // console.log(ipcRenderer);
-    ipcRenderer.send('editor', JSON.stringify({react: 'React send the msg!'}));
+    // ipcRenderer.send('editor', JSON.stringify({react: 'React send the msg!'}));
 
     // ipcRenderer.on('editor', (event, response) => {
     //   console.log('RESPONSE', response);
@@ -132,6 +136,9 @@ class App extends Component {
   // WS send track text
   sendCurrentTrackTextWithSocket(currentTrackTextLine) {
 
+    // Set canvas
+    var canvas = md5(this.state.currentTrackTextLine);
+
     const ws = new WebSocket(`ws://${location.host}/`);
 
     this.setState({currentTrackTextLine: currentTrackTextLine});
@@ -139,8 +146,9 @@ class App extends Component {
     ws.onopen = () => {
       ws.send(JSON.stringify(
         {
-          type: this.props._ui.category.name,
+          category: this.props._ui.category.name,
           data: {
+            canvas: canvas,
             text: this.state.currentTrackTextLine
           }
         }
@@ -150,7 +158,7 @@ class App extends Component {
         {
           category: this.props._ui.category.name,
           data: {
-            text: this.state.currentTrackTextLine
+            text: this.state.currentTrackTextLine // Что бы не было ошибки на сервере!
           }
         }
       );
@@ -162,7 +170,11 @@ class App extends Component {
           // if (reply.data.success) {
           //   this.setState({currentTrackText: newtext});
           // }
-        })
+
+          // Устанавлеваем канвас после всего
+          this.setState({canvas: canvas});
+
+        }.bind(this))
         .catch(function (error) {
           console.log(error);
         });
@@ -179,7 +191,7 @@ class App extends Component {
     ws.onopen = () => {
       ws.send(JSON.stringify(
         {
-          type: this.props._ui.category.name,
+          category: this.props._ui.category.name,
           data: {
             book: this.state.currentBookName,
             chapter: this.state.currentChapterId,
@@ -237,16 +249,9 @@ class App extends Component {
 
   // Add new song to Db
   addSongToDb() {
-
+    const {ipcRenderer} = window.require('electron');
     // Send msg to open a window for add new song
     ipcRenderer.send('add-new-song');
-
-    // this.setState({
-    //   allowAddingNewSong: true,
-    //   openActionFrame: true,
-    //   actionFrameName: '',
-    //   actionFrameText: '<p>Пиши текст песни здесь</p>',
-    // });
   }
 
   // Get chapters
@@ -310,7 +315,10 @@ class App extends Component {
 
   // Open editor
   openActionFrame() {
-    this.setState({openActionFrame: true});
+    const {ipcRenderer} = window.require('electron');
+    // Send msg to open a window for add new song
+    ipcRenderer.send('edit-song', JSON.stringify({currentTrackId: this.state.currentTrackId}));
+    // this.setState({openActionFrame: true});
   }
 
   // Enter the name in frame window
@@ -401,6 +409,13 @@ class App extends Component {
   // Show chapters roster
   openChaptersRoster(boolean) {
     this.setState({showChapters: boolean})
+  }
+
+  // Open editor
+  openEditorWindow() {
+    const {ipcRenderer} = window.require('electron');
+    // Send msg to open a window for add new song
+    ipcRenderer.send('editor');
   }
 
   render() {
@@ -533,7 +548,7 @@ class App extends Component {
         ?
         this.state.chapters.map((chapter, index) => {
           return (
-            <p key={index} onClick={()=>this.getVersesOfChosenChapter(chapter.name)}>{chapter.name}</p>)
+            <p key={index} onClick={() => this.getVersesOfChosenChapter(chapter.name)}>{chapter.name}</p>)
         })
         : '';
 
@@ -617,7 +632,7 @@ class App extends Component {
               id="hide-background"
               style={{
                 "display": this.state.showChapters ? "flex" : "none",
-                "width":"320px"
+                "width": "320px"
               }}
             ></div>
 
@@ -684,34 +699,44 @@ class App extends Component {
             </div>
           </div>
           <div className="column-three-center">
-            <div className="screen">
-              {
-                this.state.view === 'projector' && this.state.view !== undefined
-                  ?
-                  <Iframe
-                    url={`http://${location.host}/screen`}
-                    width="100%"
-                    height="100%"
-                    id="iframe-view-container"
-                    className="myClassname"
-                    display="initial"
-                    position="relative"
-                    frameBorder="0"
-                    ref={this.iframe}
-                  />
-                  :
-                  <Iframe
-                    url={`http://${location.host}/remote`}
-                    width="100%"
-                    height="100%"
-                    id="iframe-view-container"
-                    className="myClassname"
-                    display="initial"
-                    position="relative"
-                    frameBorder="0"
-                    ref={this.iframe}
-                  />
-              }
+            <div className="screen" onDoubleClick={this.openEditorWindow}>
+              {/*{*/}
+              {/*  this.state.canvas !== '' ?*/}
+              {/*    <img*/}
+              {/*      id="img-canvas"*/}
+              {/*      src={`http://${location.host}/canvas/` + this.state.canvas}*/}
+              {/*      alt="Canvas"*/}
+              {/*    />*/}
+              {/*    : ""*/}
+              {/*}*/}
+
+              {/*{*/}
+              {/*  this.state.view === 'projector' && this.state.view !== undefined*/}
+              {/*    ?*/}
+              {/*    <Iframe*/}
+              {/*      url={`http://${location.host}/screen`}*/}
+              {/*      width="100%"*/}
+              {/*      height="100%"*/}
+              {/*      id="iframe-view-container"*/}
+              {/*      className="myClassname"*/}
+              {/*      display="initial"*/}
+              {/*      position="relative"*/}
+              {/*      frameBorder="0"*/}
+              {/*      ref={this.iframe}*/}
+              {/*    />*/}
+              {/*    :*/}
+              {/*    <Iframe*/}
+              {/*      url={`http://${location.host}/remote`}*/}
+              {/*      width="100%"*/}
+              {/*      height="100%"*/}
+              {/*      id="iframe-view-container"*/}
+              {/*      className="myClassname"*/}
+              {/*      display="initial"*/}
+              {/*      position="relative"*/}
+              {/*      frameBorder="0"*/}
+              {/*      ref={this.iframe}*/}
+              {/*    />*/}
+              {/*}*/}
             </div>
             <div className="screen-control">
               <button id="action-button-show-screen">
@@ -727,36 +752,6 @@ class App extends Component {
             <Timer/>
           </div>
         </div>
-
-        <div className="action-frame-container" style={{"display": this.state.openActionFrame ? "flex" : "none"}}>
-          <div className="action-frame">
-            <input
-              type="text"
-              id="input-enter-name"
-              onChange={this.actionFrameEnterName}
-              value={this.state.actionFrameName}
-              placeholder="Название"
-            />
-            <textarea
-              id="textarea-input-text"
-              value={this.state.actionFrameText}
-              onChange={this.actionFrameEnterText}
-            />
-            <div className="action-frame-controls">
-              <button id="action-frame-false" onClick={this.actionFrameCancel}>Отмена</button>
-              {
-                this.state.allowAddingNewSong
-                  ?
-                  <button id="action-frame-true" onClick={this.actionFrameAdd}>Добавить</button>
-                  :
-                  <button id="action-frame-true" onClick={this.actionFrameSave}>Сохранить</button>
-              }
-            </div>
-          </div>
-        </div>
-        {
-          this.state.openEditorFrame === true ? <Editor/> : ''
-        }
 
       </React.Fragment>
     );

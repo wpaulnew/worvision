@@ -7,12 +7,15 @@ const path = require('path');
 const installExtension = require('electron-devtools-installer');
 
 // Live reload
-require('electron-reload')(__dirname);
+// require('electron-reload')(__dirname);
 
 // require('./api');
 
 var mainWindow;
 var remoteWindow;
+var addSongWindow;
+var editSongWindow;
+var editorWindow;
 
 // let remoteWindow;
 
@@ -21,7 +24,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
-    show: false,
+    show: true,
     webPreferences: {
       nodeIntegration: true
     }
@@ -36,9 +39,10 @@ function createWindow() {
   installExtension.default(installExtension.REDUX_DEVTOOLS)
     .then((name) => console.log(`Added Extension:  ${name}`))
     .catch((err) => console.log('An error occurred: ', err));
-  mainWindow.webContents.openDevTools();
 
-  mainWindow.maximize();
+  // mainWindow.webContents.openDevTools();
+
+  // mainWindow.maximize();
 
   mainWindow.on('closed', function () {
     mainWindow = null
@@ -55,20 +59,20 @@ app.on('ready', () => {
     return display.bounds.x !== 0 || display.bounds.y !== 0
   });
 
-  if (externalDisplay) {
+  if (!externalDisplay) {
     remoteWindow = new BrowserWindow({
       x: externalDisplay.bounds.x + 50,
       y: externalDisplay.bounds.y + 50,
       fullscreen: false,
       webPreferences: {
-        nodeIntegration: true,
-        preload: path.join(__dirname, 'preload.js')
+        nodeIntegration: true
       }
     });
 
     // remoteWindow.maximize();
 
-    remoteWindow.loadURL(`http://${ip.address()}:3001/screen`);
+    // remoteWindow.loadURL(`http://${ip.address()}:3001/screen`);
+    remoteWindow.loadURL(`http://${ip.address()}:3001/add`);
 
     remoteWindow.on('closed', function () {
       remoteWindow = null
@@ -99,9 +103,6 @@ ipcMain.on('editor', (event, args) => {
 
 // Add new song
 ipcMain.on('add-new-song', (event, args) => {
-  console.log('');
-
-  let addSongWindow;
 
   addSongWindow = new BrowserWindow({
     width: 740,
@@ -112,9 +113,77 @@ ipcMain.on('add-new-song', (event, args) => {
   });
   // mainWindow.webContents.send('editor', args);
 
-  addSongWindow.loadURL(`http://${ip.address()}:3001/view`);
+  addSongWindow.loadURL(`http://${ip.address()}:3001/add`);
 
   addSongWindow.on('closed', function () {
     addSongWindow = null
-  })
+  });
+});
+
+// Edit song
+ipcMain.on('edit-song', (event, args) => {
+
+  editSongWindow = new BrowserWindow({
+    width: 740,
+    height: 560,
+    show: false,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
+  // mainWindow.webContents.send('editor', args);
+
+  editSongWindow.loadURL(`http://${ip.address()}:3001/edit`);
+
+  // editSongWindow.webContents.openDevTools();
+
+  editSongWindow.on('closed', function () {
+    editSongWindow = null
+  });
+
+  editSongWindow.once('ready-to-show', () => {
+    editSongWindow.show();
+    editSongWindow.webContents.send('edit-song', args);
+  });
+});
+
+// Editor
+ipcMain.on('editor', (event, args) => {
+
+  editorWindow = new BrowserWindow({
+    width: 1280,
+    height: 720,
+    show: false,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
+  // mainWindow.webContents.send('editor', args);
+
+  editorWindow.loadURL(`http://${ip.address()}:3001/editor`);
+
+  // editSongWindow.webContents.openDevTools();
+
+  editorWindow.on('closed', function () {
+    editorWindow = null
+  });
+
+  editorWindow.once('ready-to-show', () => {
+    editorWindow.show();
+  });
+});
+
+// Close add window
+ipcMain.on('close-add-window', (event, args) => {
+  addSongWindow.close();
+});
+
+// Close edit window
+ipcMain.on('close-edit-window', (event, args) => {
+  editSongWindow.close();
+});
+
+// Close editor window
+ipcMain.on('close-editor-window', (event, args) => {
+  editorWindow.close();
 });
