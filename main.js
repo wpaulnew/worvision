@@ -17,8 +17,6 @@ var addSongWindow;
 var editSongWindow;
 var editorWindow;
 
-// let remoteWindow;
-
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -59,11 +57,12 @@ app.on('ready', () => {
     return display.bounds.x !== 0 || display.bounds.y !== 0
   });
 
-  if (!externalDisplay) {
+  if (externalDisplay) {
     remoteWindow = new BrowserWindow({
       x: externalDisplay.bounds.x + 50,
       y: externalDisplay.bounds.y + 50,
       fullscreen: false,
+      show: false,
       webPreferences: {
         nodeIntegration: true
       }
@@ -71,7 +70,6 @@ app.on('ready', () => {
 
     // remoteWindow.maximize();
 
-    // remoteWindow.loadURL(`http://${ip.address()}:3001/screen`);
     remoteWindow.loadURL(`http://${ip.address()}:3001/add`);
 
     remoteWindow.on('closed', function () {
@@ -96,10 +94,10 @@ app.on('activate', function () {
 });
 
 // Actions
-ipcMain.on('editor', (event, args) => {
-  console.log(args);
-  mainWindow.webContents.send('editor', args);
-});
+// ipcMain.on('editor', (event, args) => {
+//   console.log(args);
+//   mainWindow.webContents.send('editor', args);
+// });
 
 // Add new song
 ipcMain.on('add-new-song', (event, args) => {

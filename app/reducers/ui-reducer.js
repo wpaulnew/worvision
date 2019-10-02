@@ -2,7 +2,29 @@ import {UPDATE_UI} from "../actions/ui-actions";
 
 const ui = {
   category: {
-    name: 'tracks', // tracks
+    name: 'Библия', // tracks or bible
+    names: [
+      {
+        name: 'Библия',
+      },
+      {
+        name: 'Песни'
+      }
+    ]
+  },
+  collection: {
+    name: 'Все', // tracks or bible
+    names: [
+      {
+        name: 'Все',
+      },
+      {
+        name: 'Мои'
+      },
+      {
+        name: 'Песнь возрождения'
+      }
+    ]
   }
 };
 
@@ -14,6 +36,7 @@ export function uiReducer(state = ui, action) {
       return state = {
         ...state,
         category: {
+          names: state.category.names,
           name: action.payload.name
         }
       };

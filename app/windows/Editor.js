@@ -76,8 +76,8 @@ class Editor extends Component {
           return {
             ...e, props: {
               ...e.props,
-              x: e.props.x + data.lastX,
-              y: e.props.y + data.lastY
+              x: e.props.positions.x + data.lastX,
+              y: e.props.positions.y + data.lastY
             }
           }
         }
@@ -114,11 +114,11 @@ class Editor extends Component {
               key={element.id}
               grid={[10, 10]}
               style={{
-                backgroundColor: element.props.background,
+                backgroundColor: element.props.css.background,
                 position: 'absolute',
-                transform: `translate(${element.props.x}px, ${element.props.y}px)`
+                transform: `translate(${element.props.positions.x}px, ${element.props.positions.y}px)`
               }}
-              size={{width: element.props.width, height: element.props.height}}
+              size={{width: element.props.sizes.width, height: element.props.sizes.height}}
               onResizeStop={(e, direction, ref, d) => {
 
                 // console.log(this.state.elements.filter((e) => e.id === element.id)[0]);
@@ -130,8 +130,8 @@ class Editor extends Component {
                       return {
                         ...e, props: {
                           ...e.props,
-                          width: element.props.width + d.width,
-                          height: element.props.height + d.height
+                          width: element.props.sizes.width + d.width,
+                          height: element.props.sizes.height + d.height
                         }
                       }
                     }
@@ -147,17 +147,26 @@ class Editor extends Component {
                 grid={[10, 10]}
                 scale={1}
                 onStart={this.handleStart}
-                onDrag={this.handleDrag}
                 onStop={(e, data) => this.handleStop(e, data, element.id)}>
 
-                <div className='handle' id='editor-frame-element-box'
+                <div className='handle'
                      style={{
-                       transform: `translate(${element.props.x}px, ${element.props.y}px)`,
-                       width: element.props.width,
-                       height: element.props.height
-                     }}>
-                  <p style={element.props.font} dangerouslySetInnerHTML={{__html: element.props.text}}/>
-                </div>
+                       transform: `translate(${element.props.x}px, ${element.props.positions.y}px)`,
+                       width: element.props.sizes.width,
+                       height: element.props.sizes.height
+                     }}
+                     style={element.props.font}
+                     dangerouslySetInnerHTML={{__html: element.props.text}}
+                />
+
+                {/*<div className='handle' id='editor-frame-element-box'*/}
+                {/*     style={{*/}
+                {/*       transform: `translate(${element.props.x}px, ${element.props.positions.y}px)`,*/}
+                {/*       width: element.props.sizes.width,*/}
+                {/*       height: element.props.sizes.height*/}
+                {/*     }}>*/}
+                {/*  <p style={element.props.font} dangerouslySetInnerHTML={{__html: element.props.text}}/>*/}
+                {/*</div>*/}
 
               </Draggable>
             </Resizable>

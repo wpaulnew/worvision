@@ -64,7 +64,6 @@ app.get('/tracks', (req, res) => {
       console.error(err.message);
     }
     db.serialize(function () {
-      let songs = [];
       db.all('SELECT * FROM tracks', function (err, rows) {
         console.log('Received tracks');
         res.json(rows);
@@ -172,6 +171,8 @@ app.put('/track', function (req, res) {
   const id = req.body.id;
   const name = req.body.name;
   const text = req.body.text;
+
+  // console.log(id);
 
   const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
     if (err) {

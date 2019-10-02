@@ -39,7 +39,7 @@ module.exports = {
             loader: 'css-loader'
           }
         ]
-      },
+      }
     ]
   },
 
@@ -48,6 +48,12 @@ module.exports = {
     //   template: "./api/build/index.html",
     //   filename: "./index.html"
     // })
-  ]
+  ],
+
+  resolve: {
+    alias: {
+      'react-virtualized/List': 'react-virtualized/dist/es/List',
+    }
+  }
 
 };

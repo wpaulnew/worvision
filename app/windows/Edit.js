@@ -65,7 +65,7 @@ class Edit extends Component {
     const name = this.state.name;
     const text = this.state.text;
 
-    console.log(text);
+    // console.log(text);
 
     // Send changes to database
     axios.put(`http://${location.host}/track`, {

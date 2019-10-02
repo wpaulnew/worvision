@@ -21,14 +21,14 @@ class Remote extends Component {
       .then((data) => {
         const response = JSON.parse(data.data);
 
-        if (response.category === 'bible') {
+        if (response.category === 'Библия') {
           this.setState({
             showBible: true,
             data: response.data
           });
         }
 
-        if (response.category === 'tracks') {
+        if (response.category === 'Песни') {
           this.setState({
             showTrack: true,
             data: response.data
@@ -43,7 +43,7 @@ class Remote extends Component {
       console.log(event.data);
       const response = JSON.parse(event.data);
 
-      if (response.category === 'bible') {
+      if (response.category === 'Библия') {
         this.setState({
           showBible: true,
           showTrack: false,
@@ -51,7 +51,7 @@ class Remote extends Component {
         });
       }
 
-      if (response.category === 'tracks') {
+      if (response.category === 'Песни') {
         this.setState({
           showTrack: true,
           showBible: false,

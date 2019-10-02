@@ -1,15 +1,39 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <link rel="stylesheet" href="style.css">
+  <title>Frameless and Rounded</title>
 </head>
+<style>
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    transform: scale(0.9);
+    border: 2px solid black;
+    border-radius: 25px;
+  }
+
+  .container {
+    height: 100%;
+    background-color: lightgrey;
+  }
+
+  h1 {
+    text-align: center;
+    color: black;
+    margin: 0;
+  }
+</style>
 <body>
-
-  <h1>Connect 2 display</h1>
-
+<div class="container">
+  <h1>Frameless and Rounded</h1>
+</div>
 </body>
 </html>

@@ -65,6 +65,30 @@ body {
   height: 100%;
 }
 
+.collections {
+  height: 40px;
+  min-height: 40px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0 20px 0 20px;
+  justify-content: flex-start;
+  border-bottom: solid 1px #ECECEC;
+}
+
+.collections button {
+  border: none;
+  background: #323232;
+  padding: 4px 10px;
+  border-radius: 4px;
+  color: #FFFFFF;
+  outline: none;
+  /*font-size: 1em;*/
+  margin: 0 0 0 4px;
+  cursor: pointer;
+}
+
 .column-one-down {
   height: 40px;
   background: #F1F1F1;
@@ -461,7 +485,7 @@ option {
   resize: none;
   margin: 0;
   background: none;
-  padding: 20px 20px 0 20px;
+  padding: 20px 20px 20px 20px;
   font-size: 16px;
   box-sizing: border-box;
   overflow-y: auto;

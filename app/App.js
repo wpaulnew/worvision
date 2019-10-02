@@ -47,6 +47,10 @@ class App extends Component {
       currentVerseText: '',
       showChapters: false,
 
+      // Search
+      find: false,
+      findText: '',
+
       // tracks
       currentTrackId: '',
       currentTrackName: '',
@@ -65,7 +69,7 @@ class App extends Component {
     this.sendCurrentTrackTextWithSocket = this.sendCurrentTrackTextWithSocket.bind(this); // ws
     this.sendCurrentChapterTextWithSocket = this.sendCurrentChapterTextWithSocket.bind(this); // ws
 
-    this.takeCurrentCategory = this.takeCurrentCategory.bind(this);
+    this.changeCurrentCategory = this.changeCurrentCategory.bind(this);
     this.updateCurrentTrackName = this.updateCurrentTrackName.bind(this);
     this.handleEditedText = this.handleEditedText.bind(this);
 
@@ -77,6 +81,7 @@ class App extends Component {
     // Methods for work with tracks
     this.addSongToDb = this.addSongToDb.bind(this);
     this.takeCurrentView = this.takeCurrentView.bind(this);
+    this.changeCurrentCollection = this.changeCurrentCollection.bind(this);
 
     // Frame
     this.openActionFrame = this.openActionFrame.bind(this);
@@ -87,6 +92,9 @@ class App extends Component {
     this.actionFrameAdd = this.actionFrameAdd.bind(this);
 
     this.openEditorWindow = this.openEditorWindow.bind(this);
+
+    // Search
+    this.updateFindText = this.updateFindText.bind(this);
   }
 
   componentDidMount() {
@@ -96,7 +104,7 @@ class App extends Component {
     // ipcRenderer.on('editor', (event, response) => {
     //   console.log('RESPONSE', response);
     // });
-
+    console.log(this.props._ui.category.names);
   }
 
   // Get song text by id
@@ -229,11 +237,16 @@ class App extends Component {
   }
 
   // Return value of from select component
-  takeCurrentCategory(value) {
-    // console.log(value);
-    const category = value === 'Песни' ? 'tracks' : 'bible';
+  changeCurrentCategory(value) {
+    console.log(value);
+    // const category = value === 'Песни' ? 'tracks' : 'bible';
     // this.setState({category: category});
-    this.props._changeCurrentCategory(category);
+    this.props._changeCurrentCategory(value);
+  }
+
+  // Return current collection
+  changeCurrentCollection(value) {
+    console.log(value);
   }
 
   // Change name of song
@@ -418,6 +431,24 @@ class App extends Component {
     ipcRenderer.send('editor');
   }
 
+  // Update find text
+  updateFindText(e) {
+
+    const text = e.target.value;
+
+    if (text.length <= 0) {
+      this.setState({
+        find: false,
+        findText: ''
+      })
+    }
+
+    this.setState({
+      find: true,
+      findText: text
+    })
+  }
+
   render() {
 
     const options = {
@@ -511,6 +542,15 @@ class App extends Component {
         :
         '';
 
+    // Поиск собственно
+    let filteredTracks =
+      this.props._tracks !== undefined
+        ?
+        this.props._tracks.filter((track) => {
+          return track.name.indexOf(this.state.findText) !== -1;
+        })
+        : '';
+
     const books =
       this.props._books !== undefined
         ?
@@ -522,7 +562,7 @@ class App extends Component {
         '';
 
     const favorites =
-      this.props._ui.category.name === 'tracks' && this.props._tracks !== undefined
+      this.props._tracks !== undefined
         ?
         this.props._tracks.map((track) => {
           return (
@@ -560,20 +600,77 @@ class App extends Component {
 
         <div className="column-one">
           <div className="column-one-up">
-            <input type="text" id="input-find" placeholder="Поиск"/>
+            <input type="text" id="input-find" value={this.state.findText} onChange={this.updateFindText}
+                   placeholder="Поиск"/>
             <Dropdowmenu
-              name='value'
-              value={(value) => this.takeCurrentCategory(value)}
-              values={options.category}
+              name='name'
+              value={(value) => this.changeCurrentCategory(value)}
+              values={this.props._ui.category.names}
             />
           </div>
           <div className="column-one-center">
+
+            {
+              this.props._ui.category.name === 'Песни'
+                ?
+                <div className='collections'>
+                  {
+                    this.props._ui.collection.names.map((collection) => {
+                      return (
+                        <button key={collection.name}>{collection.name}</button>
+                      );
+                    })
+                  }
+                </div>
+                :
+                ''
+            }
+
             <div id="tracks" className="tracks">
-              {this.props._ui.category.name === 'tracks' ? tracks : books}
+              {this.props._ui.category.name === 'Песни' ?
+                this.state.find === true ?
+
+                  filteredTracks.map((track) => {
+                    return (
+                      track.favorite !== 1
+                        ?
+                        <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
+                          {track.name}
+                          <button onClick={() => this.props._addTrackToFavorites(track.id)}
+                                  id="action-button-add-to-favorite"
+                                  title='Добавить в избранное'>
+                            <span id="action-button-add-to-favorite-icon"/>
+                          </button>
+                        </p>
+                        :
+                        <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
+                          {track.name}
+                          <button onClick={() => this.props._removeTrackFromFavorites(track.id)}
+                                  id="action-button-remove-from-favorite"
+                                  title='Удалить из избранного'>
+                            <span id="action-button-remove-from-favorite-icon"/>
+                          </button>
+                        </p>
+                    );
+                  })
+
+                  :
+                  tracks
+                :
+                books
+              }
             </div>
-            <div className="favorites">
-              {favorites}
-            </div>
+
+            {
+              this.props._ui.category.name === 'Песни'
+                ?
+                <div className="favorites">
+                  {favorites}
+                </div>
+                :
+                ''
+            }
+
           </div>
           <div className="column-one-down">
 
@@ -595,7 +692,7 @@ class App extends Component {
         <div className="column-two">
           <div className="column-two-up">
             {
-              this.props._ui.category.name === 'tracks'
+              this.props._ui.category.name === 'Песни'
                 ?
                 <React.Fragment>
                   <input
@@ -644,7 +741,7 @@ class App extends Component {
             <div id="textarea-music-text">
               <Switcher>
                 {
-                  this.props._ui.category.name === 'tracks'
+                  this.props._ui.category.name === 'Песни'
                     ?
                     this.state.currentTrackText !== undefined && this.state.currentTrackText !== null
                       ?

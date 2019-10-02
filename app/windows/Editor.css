@@ -90,7 +90,7 @@
 }
 
 #editor-frame-element-box {
-  width: 100px;
+  /*width: 100px;*/
   cursor: move;
   z-index: 10;
   text-align: left;
@@ -100,7 +100,11 @@
   align-items: flex-start;
 }
 
-#editor-frame-element-box i {
+/*#editor-frame-element-box i {*/
+/*  font-weight: 500;*/
+/*}*/
+
+i {
   font-weight: 500;
 }
 

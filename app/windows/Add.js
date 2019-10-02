@@ -45,7 +45,7 @@ class Add extends Component {
 
         // Close window after save
         const {ipcRenderer} = window.require('electron');
-        ipcRenderer.send('close-edit-window');
+        ipcRenderer.send('close-add-window');
 
       })
       .catch(function (error) {
