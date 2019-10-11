@@ -32,6 +32,7 @@ body {
   height: 100%;
   background: #323232;
   opacity: 0.4;
+  z-index: 3;
 }
 
 /* Column-one */
@@ -52,7 +53,7 @@ body {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px 0 0;
+  /*padding: 0 20px 0 0;*/
   box-sizing: border-box;
 }
 
@@ -436,6 +437,7 @@ option {
   justify-content: space-between;
   border-left: solid 1px #ECECEC;
   border-right: solid 1px #ECECEC;
+  flex-grow: 1;
 }
 
 .column-two-up {
@@ -457,8 +459,11 @@ option {
   min-height: 40px;
   background: #F1F1F1;
   display: flex;
-  flex-direction: row;
+  align-items: center;
   justify-content: space-between;
+  padding: 0 20px 0 20px;
+  box-sizing: border-box;
+  z-index: 5;
 }
 
 #input-music-name {
@@ -539,16 +544,17 @@ option {
 }
 
 .roster-of-chapters {
-  position: absolute;
+  position: relative;
   display: flex;
-  width: 320px;
-  max-width: 320px;
+  width: 100%;
+  max-width: 100%;
   background: #FFFFFF;
   flex-direction: row;
   justify-content: flex-start;
   box-sizing: border-box;
   flex-wrap: wrap;
   padding: 0 5px 0 5px;
+  z-index: 4;
 }
 
 .roster-of-chapters p {
@@ -572,11 +578,13 @@ option {
 /* Column-three */
 
 .column-three {
-  width: 640px;
+  display: none;
+  width: 320px;
+  max-width: 320px;
   flex-grow: 1;
   height: 100%;
   background: #F7F6F3;
-  display: flex;
+  /*display: flex;*/
   flex-direction: column;
   justify-content: space-between;
 }

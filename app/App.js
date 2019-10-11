@@ -610,6 +610,8 @@ class App extends Component {
           </div>
           <div className="column-one-center">
 
+            {/*<div className="screen" onDoubleClick={this.openEditorWindow}></div>*/}
+
             {
               this.props._ui.category.name === 'Песни'
                 ?
@@ -729,7 +731,7 @@ class App extends Component {
               id="hide-background"
               style={{
                 "display": this.state.showChapters ? "flex" : "none",
-                "width": "320px"
+                "width": "100%"
               }}
             ></div>
 
@@ -777,7 +779,10 @@ class App extends Component {
               </Switcher>
             </div>
           </div>
-          <div className="column-two-down"></div>
+          <div className="column-two-down">
+            <span id="ip-address">{location.host !== '' ? location.host : ''}</span>
+            <Timer/>
+          </div>
         </div>
         <div className="column-three">
           <div className="column-three-up">
@@ -795,55 +800,17 @@ class App extends Component {
               />
             </div>
           </div>
-          <div className="column-three-center">
-            <div className="screen" onDoubleClick={this.openEditorWindow}>
-              {/*{*/}
-              {/*  this.state.canvas !== '' ?*/}
-              {/*    <img*/}
-              {/*      id="img-canvas"*/}
-              {/*      src={`http://${location.host}/canvas/` + this.state.canvas}*/}
-              {/*      alt="Canvas"*/}
-              {/*    />*/}
-              {/*    : ""*/}
-              {/*}*/}
-
-              {/*{*/}
-              {/*  this.state.view === 'projector' && this.state.view !== undefined*/}
-              {/*    ?*/}
-              {/*    <Iframe*/}
-              {/*      url={`http://${location.host}/screen`}*/}
-              {/*      width="100%"*/}
-              {/*      height="100%"*/}
-              {/*      id="iframe-view-container"*/}
-              {/*      className="myClassname"*/}
-              {/*      display="initial"*/}
-              {/*      position="relative"*/}
-              {/*      frameBorder="0"*/}
-              {/*      ref={this.iframe}*/}
-              {/*    />*/}
-              {/*    :*/}
-              {/*    <Iframe*/}
-              {/*      url={`http://${location.host}/remote`}*/}
-              {/*      width="100%"*/}
-              {/*      height="100%"*/}
-              {/*      id="iframe-view-container"*/}
-              {/*      className="myClassname"*/}
-              {/*      display="initial"*/}
-              {/*      position="relative"*/}
-              {/*      frameBorder="0"*/}
-              {/*      ref={this.iframe}*/}
-              {/*    />*/}
-              {/*}*/}
-            </div>
-            <div className="screen-control">
-              <button id="action-button-show-screen">
-                <span id="action-button-show-screen-icon"/>
-              </button>
-              <button id="action-button-hide-screen">
-                <span id="action-button-hide-screen-icon"/>
-              </button>
-            </div>
-          </div>
+          {/*<div className="column-three-center">*/}
+          {/*  /!*<div className="screen" onDoubleClick={this.openEditorWindow}></div>*!/*/}
+          {/*  <div className="screen-control">*/}
+          {/*    <button id="action-button-show-screen">*/}
+          {/*      <span id="action-button-show-screen-icon"/>*/}
+          {/*    </button>*/}
+          {/*    <button id="action-button-hide-screen">*/}
+          {/*      <span id="action-button-hide-screen-icon"/>*/}
+          {/*    </button>*/}
+          {/*  </div>*/}
+          {/*</div>*/}
           <div className="column-three-down">
             <span id="ip-address">{location.host !== '' ? location.host : ''}</span>
             <Timer/>

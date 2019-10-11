@@ -10,7 +10,9 @@ class Remote extends Component {
       showBible: false,
       showTrack: false,
       data: {}
-    }
+    };
+
+    this.clear = this.clear.bind(this);
   }
 
 
@@ -62,6 +64,15 @@ class Remote extends Component {
     }.bind(this);
   }
 
+  clear(text) {
+    return text.replace(/\{.*\}/g, '')
+      .replace(/\(\*.*\)/g, '')
+      .replace('*', '')
+      .replace('-', '—')
+      // .replace(/\"\s/g, '</i> ')
+      // .replace(/"/g, '<j>');
+  }
+
   render() {
     return (
       <React.Fragment>
@@ -71,7 +82,7 @@ class Remote extends Component {
             <div id="bible">
               <div className="bible-container">
                 <p id="bible-reference">{this.state.data.book} {this.state.data.chapter}:{this.state.data.id}</p>
-                <p id="bible-text" dangerouslySetInnerHTML={{__html: this.state.data.text}}></p>
+                <p id="bible-text" dangerouslySetInnerHTML={{__html: this.clear(this.state.data.text)}}></p>
               </div>
             </div>
 

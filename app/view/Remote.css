@@ -65,13 +65,13 @@ body {
 }
 
 #bible-reference {
-  font-size: 1.4em;
+  font-size: 1.3em;
   text-align: left;
   position: relative;
   width: auto;
   padding: 5px 20px 5px 20px;
-  font-weight: bold;
-  background: #232732;
+  font-weight: 800;
+  background: #Ef8A00;
   color: #FFFFFF;
   text-transform: uppercase;
   margin: 0 0 0 60px;
@@ -80,16 +80,19 @@ body {
 
 #bible-text {
   width: 100%;
-  padding: 24px 20px 10px 20px;
+  padding: 24px 20px 10px 24px;
   background: #f3f3f3;
-  font-size: 1.55em; /* 1.9em */
-  color: #232732;
+  font-size: 1.5em; /* 1.9em */
+  color: #FFFFFF;
+  line-height: 1em;
   text-align: left;
-  height: 157px;
+  height: 137px;
   min-height: 120px;
-  font-weight: bold;
+  font-weight: 700;
   box-sizing: border-box;
   margin: 0;
+  background: url("../backgrounds/TEXTBACKGROUND.png");
+  background-color: #232732;
 }
 
 #bible-text i {
@@ -115,16 +118,16 @@ body {
 }
 
 #track-text {
-  width: 60%;
+  width: 80%;
   height: 78px;
-  font-size: 2em;
+  font-size: 2.6em;
   font-weight: bold;
   color: #FFFFFF;
   text-align: center;
   justify-content: center;
   align-items: flex-end;
   display: flex;
-  text-shadow: #000000 0 0 2.1px;
+  text-shadow: #000000 0 0 3px;
 }
 
 /* /Track */
