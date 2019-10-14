@@ -679,6 +679,9 @@ class App extends Component {
                     value={this.state.currentTrackName}
                     placeholder="Назване выбраной песни"
                   />
+                  <button id="action-button-change-view" title="Изменить отображение">
+                    <span id="action-button-change-view-icon"></span>
+                  </button>
                 </React.Fragment>
                 :
                 <div className='selected-book-props'>

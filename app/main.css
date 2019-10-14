@@ -448,6 +448,28 @@ option {
   justify-content: flex-end;
 }
 
+#action-button-change-view {
+  width: auto;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px 0 20px;
+  border: none;
+  background: none;
+  margin: 0;
+  outline: none;
+  cursor: pointer;
+}
+
+#action-button-change-view-icon {
+  display: inline-block;
+  background: url('./icons/SQUARESCHANGE.svg');
+  background-repeat: no-repeat;
+  width: 18px;
+  height: 18px;
+  background-position: center;
+}
+
 .column-two-center {
   flex-grow: 1;
   height: 100%;

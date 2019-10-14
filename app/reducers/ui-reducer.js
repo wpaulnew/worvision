@@ -2,7 +2,7 @@ import {UPDATE_UI} from "../actions/ui-actions";
 
 const ui = {
   category: {
-    name: 'Библия', // tracks or bible
+    name: 'Песни', // tracks or bible
     names: [
       {
         name: 'Библия',
