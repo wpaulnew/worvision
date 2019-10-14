@@ -22,6 +22,7 @@ class Remote extends Component {
       .then((data) => data.json())
       .then((data) => {
         const response = JSON.parse(data.data);
+        console.log(response);
 
         if (response.category === 'Библия') {
           this.setState({

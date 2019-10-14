@@ -105,6 +105,23 @@ class App extends Component {
     //   console.log('RESPONSE', response);
     // });
     console.log(this.props._ui.category.names);
+
+    // Включаем выключаем показ текста на remote
+    // document.body.addEventListener('keydown', (e) => {
+    //
+    //   if (e.key === 'Enter' && this.state.openActionFrame !== true) {
+    //     this.setState({remoteShowActive: true})
+    //   }
+    //
+    //   if (e.key === 'Escape' && this.state.openActionFrame !== true) {
+    //     this.setState({remoteShowActive: false})
+    //   }
+    // })
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", () => {
+    }, false);
   }
 
   // Get song text by id
@@ -462,46 +479,6 @@ class App extends Component {
           value: 'Библия'
         }
       ],
-      "fonts": {
-        "names": [
-          {
-            id: 0,
-            value: 'Montserrat'
-          },
-          {
-            id: 1,
-            value: 'Roboto'
-          },
-          {
-            id: 2,
-            value: 'Arial'
-          }
-        ],
-        "weight": [
-          {
-            id: 0,
-            value: 'normal'
-          },
-          {
-            id: 1,
-            value: 'bold'
-          }
-        ],
-        "sizes": [
-          {
-            id: 0,
-            value: '16'
-          },
-          {
-            id: 1,
-            value: '32'
-          },
-          {
-            id: 2,
-            value: '64'
-          }
-        ]
-      },
       "views": [
         {
           id: 0,
@@ -609,8 +586,6 @@ class App extends Component {
             />
           </div>
           <div className="column-one-center">
-
-            {/*<div className="screen" onDoubleClick={this.openEditorWindow}></div>*/}
 
             {
               this.props._ui.category.name === 'Песни'
