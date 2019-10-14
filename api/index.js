@@ -237,7 +237,7 @@ app.get('/chapters', (req, res) => {
       // Change chapter on name, because Dropdownmenu work it
       db.all(`SELECT chapter AS name FROM verses WHERE book_number = ${book_number} GROUP BY chapter`, function (err, rows) {
         console.log(`Chapters of book ${book_number} received`);
-        res.json(rows);
+        res.json(rows.length);
       });
 
     });

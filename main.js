@@ -38,9 +38,9 @@ function createWindow() {
     .then((name) => console.log(`Added Extension:  ${name}`))
     .catch((err) => console.log('An error occurred: ', err));
 
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
-  // mainWindow.maximize();
+  mainWindow.maximize();
 
   mainWindow.on('closed', function () {
     mainWindow = null

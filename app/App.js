@@ -3,8 +3,8 @@ import md5 from 'md5';
 
 // For redux
 import {connect} from "react-redux";
-import {changeCurrentCategory} from './actions/ui-actions';
-import {addTrackToFavorites, removeTrackFromFavorites} from './actions/tracks-actions';
+import {changeCurrentCategory} from './store/actions/ui-actions';
+import {addTrackToFavorites, loadTracks, removeTrackFromFavorites} from './store/actions/tracks-actions';
 
 // Supports library
 import axios from 'axios';
@@ -20,14 +20,7 @@ console.log('Location host: ', location.host);
 import './main.css';
 
 import {Link} from "react-router-dom";
-
-// Electron
-
-// window.electron = window.electron = window.require('electron');
-// console.log(window.electron);
-
-// const fs = electron.remote.require('fs');
-// const ipcRenderer  = electron.ipcRenderer;
+import {loadBooks, loadChapters, loadVerses} from "./store/actions/books-actions";
 
 class App extends Component {
 
@@ -39,11 +32,8 @@ class App extends Component {
       view: 'projector', // projector or network
 
       // Bible
-      chapters: [],
       verses: [],
-      currentBookId: '',
-      currentBookName: '',
-      currentChapterId: '',
+      currentChapterId: 1,
       currentVerseText: '',
       showChapters: false,
 
@@ -74,8 +64,8 @@ class App extends Component {
     this.handleEditedText = this.handleEditedText.bind(this);
 
     // Methods for work with bible
-    this.getChapters = this.getChapters.bind(this);
-    this.getVersesOfChosenChapter = this.getVersesOfChosenChapter.bind(this);
+    this.loadChapters = this.loadChapters.bind(this);
+    this.loadVerses = this.loadVerses.bind(this);
     this.openChaptersRoster = this.openChaptersRoster.bind(this);
 
     // Methods for work with tracks
@@ -98,30 +88,35 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // console.log(ipcRenderer);
-    // ipcRenderer.send('editor', JSON.stringify({react: 'React send the msg!'}));
-
-    // ipcRenderer.on('editor', (event, response) => {
-    //   console.log('RESPONSE', response);
-    // });
-    console.log(this.props._ui.category.names);
-
-    // Включаем выключаем показ текста на remote
-    // document.body.addEventListener('keydown', (e) => {
-    //
-    //   if (e.key === 'Enter' && this.state.openActionFrame !== true) {
-    //     this.setState({remoteShowActive: true})
-    //   }
-    //
-    //   if (e.key === 'Escape' && this.state.openActionFrame !== true) {
-    //     this.setState({remoteShowActive: false})
-    //   }
-    // })
+    this.props._loadTracks();
+    this.props._loadBooks();
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", () => {
     }, false);
+  }
+
+  // Get chapters --- redux
+  loadChapters(book_number, long_name) {
+
+    this.setState({
+      showChapters: false
+    });
+
+    this.props._loadChapters(book_number, long_name);
+    this.props._loadVerses(220, 1);
+  }
+
+  // Get verses --- redux
+  loadVerses(chapterId) {
+
+    this.props._loadVerses(this.props._books.currentBook.id, chapterId);
+
+    this.setState({
+      showChapters: false
+    });
+    // Get verses
   }
 
   // Get song text by id
@@ -146,8 +141,6 @@ class App extends Component {
       }
     }
 
-    // console.log('currentTrackText', currentTrackText);
-    // console.log('actionFrameText', actionFrameText);
 
     this.setState({
       currentTrackId: id,
@@ -191,10 +184,6 @@ class App extends Component {
       // Update in the Db
       axios.put(`http://${location.host}/current`, {data: data})
         .then(function (reply) {
-          // console.log(reply.data);
-          // if (reply.data.success) {
-          //   this.setState({currentTrackText: newtext});
-          // }
 
           // Устанавлеваем канвас после всего
           this.setState({canvas: canvas});
@@ -241,10 +230,6 @@ class App extends Component {
       // Update in the Db
       axios.put(`http://${location.host}/current`, {data: data})
         .then(function (reply) {
-          // console.log(reply.data);
-          // if (reply.data.success) {
-          //   this.setState({currentTrackText: newtext});
-          // }
         })
         .catch(function (error) {
           console.log(error);
@@ -256,8 +241,6 @@ class App extends Component {
   // Return value of from select component
   changeCurrentCategory(value) {
     console.log(value);
-    // const category = value === 'Песни' ? 'tracks' : 'bible';
-    // this.setState({category: category});
     this.props._changeCurrentCategory(value);
   }
 
@@ -282,65 +265,6 @@ class App extends Component {
     const {ipcRenderer} = window.require('electron');
     // Send msg to open a window for add new song
     ipcRenderer.send('add-new-song');
-  }
-
-  // Get chapters
-  getChapters(book_number, long_name) {
-
-    this.setState({
-      currentBookId: book_number,
-      currentBookName: long_name,
-      currentChapterId: 1,
-      showChapters: false
-    });
-
-    // Get books
-    fetch(`http://${location.host}/chapters?book=${book_number}`, {mode: 'cors'})
-      .then((chapters) => chapters.json())
-      .then(
-        (chapters) => {
-          // console.log(chapters);
-          this.setState({
-            chapters: chapters
-          });
-
-          // Get Verses on selected chapter
-
-          axios.get(`http://${location.host}/verses?book=${this.state.currentBookId}&chapter=${this.state.currentChapterId}`)
-            .then((data) => {
-              // console.log(data);
-              this.setState({
-                verses: data.data
-              });
-            })
-            .catch(function (error) {
-              // handle error
-              console.log(error);
-            })
-        }
-      );
-  }
-
-  // Get verses
-  getVersesOfChosenChapter(chapter) {
-
-    this.setState({
-      currentChapterId: chapter,
-      showChapters: false
-    });
-    // Get verses
-
-    axios.get(`http://${location.host}/verses?book=${this.state.currentBookId}&chapter=${chapter}`)
-      .then((data) => {
-        // console.log(data);
-        this.setState({
-          verses: data.data
-        });
-      })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
-      })
   }
 
   // Open editor
@@ -421,10 +345,6 @@ class App extends Component {
       text: text
     })
       .then(function (reply) {
-        // console.log(reply.data);
-        // if (reply.data.success) {
-        //   this.setState({currentTrackText: newtext});
-        // }
       })
       .catch(function (error) {
         console.log(error);
@@ -529,11 +449,11 @@ class App extends Component {
         : '';
 
     const books =
-      this.props._books !== undefined
+      this.props._books.books !== undefined
         ?
-        this.props._books.map((book) => {
+        this.props._books.books.map((book) => {
           return <p key={book.book_number}
-                    onClick={() => this.getChapters(book.book_number, book.long_name)}>{book.long_name}</p>
+                    onClick={() => this.loadChapters(book.book_number, book.long_name)}>{book.long_name}</p>
         })
         :
         '';
@@ -560,14 +480,14 @@ class App extends Component {
         :
         '';
 
-    const chapterNumbers =
-      this.state.chapters.length !== 0
-        ?
-        this.state.chapters.map((chapter, index) => {
-          return (
-            <p key={index} onClick={() => this.getVersesOfChosenChapter(chapter.name)}>{chapter.name}</p>)
-        })
-        : '';
+    // const chapterNumbers =
+    //   this.props._books.currentBook.chapters.length !== 0
+    //     ?
+    //     this.props._books.currentBook.chapters.map((chapter, index) => {
+    //       return (
+    //         <p key={index} onClick={() => this.loadVerses(chapter.name)}>{chapter.name}</p>)
+    //     })
+    //     : '';
 
     return (
       <React.Fragment>
@@ -688,17 +608,17 @@ class App extends Component {
                   <p
                     className='selected-book-props-book-name'>{this.state.currentBookName !== undefined ? this.state.currentBookName : ''}</p>
                   {
-                    this.state.chapters.length !== 0
-                      ?
-                      <Dropdowmenu
-                        show={false}
-                        active={this.state.showChapters}
-                        click={(boolean) => this.openChaptersRoster(boolean)}
-                        name='name'
-                        values={[{name: this.state.currentChapterId}]}
-                      />
-                      :
-                      ''
+                    // this.props._books.currentBook.chapters.length !== 0
+                    //   ?
+                    //   <Dropdowmenu
+                    //     show={false}
+                    //     active={this.state.showChapters}
+                    //     click={(boolean) => this.openChaptersRoster(boolean)}
+                    //     name='name'
+                    //     values={[{name: this.state.currentChapterId}]}
+                    //   />
+                    //   :
+                    //   ''
                   }
                 </div>
             }
@@ -764,12 +684,7 @@ class App extends Component {
         </div>
         <div className="column-three">
           <div className="column-three-up">
-            <div className="edit-text-tools">
-              {/*<Dropdownmenu options={options.fonts.names}/>*/}
-              {/*<Dropdownmenu options={options.fonts.weight}/>*/}
-              {/*<Dropdownmenu options={options.fonts.sizes}/>*/}
-              {/*<button onClick={() => this.setState({openEditorFrame: true})}>Настрока вида</button>*/}
-            </div>
+            <div className="edit-text-tools"></div>
             <div className="output-views-roster">
               <Dropdowmenu
                 name='value'
@@ -778,17 +693,6 @@ class App extends Component {
               />
             </div>
           </div>
-          {/*<div className="column-three-center">*/}
-          {/*  /!*<div className="screen" onDoubleClick={this.openEditorWindow}></div>*!/*/}
-          {/*  <div className="screen-control">*/}
-          {/*    <button id="action-button-show-screen">*/}
-          {/*      <span id="action-button-show-screen-icon"/>*/}
-          {/*    </button>*/}
-          {/*    <button id="action-button-hide-screen">*/}
-          {/*      <span id="action-button-hide-screen-icon"/>*/}
-          {/*    </button>*/}
-          {/*  </div>*/}
-          {/*</div>*/}
           <div className="column-three-down">
             <span id="ip-address">{location.host !== '' ? location.host : ''}</span>
             <Timer/>
@@ -805,13 +709,25 @@ const mapStateToProps = (state, props) => {
   return {
     _ui: state.ui,
     _tracks: state.tracks.tracks,
-    _books: state.books.books
+    _books: state.books
   }
 };
 
 const mapActionsToProps = (dispatch, props) => {
   // console.log('bindActionCreators', props);
   return {
+    _loadTracks: () => {
+      dispatch(loadTracks())
+    },
+    _loadBooks: () => {
+      dispatch(loadBooks())
+    },
+    _loadChapters: (bookId, bookName)=> {
+      dispatch(loadChapters(bookId, bookName))
+    },
+    _loadVerses: (bookId, chapterId)=> {
+      dispatch(loadVerses(bookId, chapterId))
+    },
     _changeCurrentCategory: (name) => {
       dispatch(changeCurrentCategory(name))
     },

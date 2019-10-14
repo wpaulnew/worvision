@@ -8,11 +8,11 @@ import thunk from 'redux-thunk';
 import {Provider} from 'react-redux';
 import {combineReducers, createStore, applyMiddleware, compose} from "redux";
 
-import {uiReducer} from "./reducers/ui-reducer";
-import {tracksReducer} from "./reducers/tracks-reducer";
-import {loadTracks} from "./actions/tracks-actions";
-import {loadBooks} from "./actions/books-actions";
-import {booksReducer} from "./reducers/books-reducer";
+import {uiReducer} from "./store/reducers/ui-reducer";
+import {tracksReducer} from "./store/reducers/tracks-reducer";
+import {loadTracks} from "./store/actions/tracks-actions";
+import {loadBooks} from "./store/actions/books-actions";
+import {booksReducer} from "./store/reducers/books-reducer";
 
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 
@@ -34,16 +34,16 @@ const reducer = combineReducers({
 var store;
 
 // if (process.env.NODE_ENV === 'development') {
-//   store = compose(
-//     applyMiddleware(thunk),
-//     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-//   )(createStore)(reducer);
+  store = compose(
+    applyMiddleware(thunk),
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  )(createStore)(reducer);
 // }
 
 // if (process.env.NODE_ENV === 'application') {
-  store = compose(
-    applyMiddleware(thunk)
-  )(createStore)(reducer);
+//   store = compose(
+//     applyMiddleware(thunk)
+//   )(createStore)(reducer);
 // }
 
 // const updateUiAction = {
@@ -57,8 +57,8 @@ var store;
 // setTimeout(() => { store.dispatch(changeCurrentCategory('bible')); }, 2000);
 
 // Load songs
-store.dispatch(loadTracks());
-store.dispatch(loadBooks());
+// store.dispatch(loadTracks());
+// store.dispatch(loadBooks());
 
 console.log('STORE: ', store.getState());
 
