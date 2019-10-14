@@ -639,42 +639,42 @@ class App extends Component {
 
 
             <div id="textarea-music-text">
-              <Switcher>
-                {
-                  this.props._ui.category.name === 'Песни'
+              {
+                this.props._ui.category.name === 'Песни'
+                  ?
+                  this.state.currentTrackText !== undefined && this.state.currentTrackText !== null
                     ?
-                    this.state.currentTrackText !== undefined && this.state.currentTrackText !== null
-                      ?
-                      this.state.currentTrackText.map((currentTrackTextLine, index) => {
-                        return (
+                    this.state.currentTrackText.map((currentTrackTextLine, index) => {
+                      return (
+                        <div className="textarea-music-text-c" key={index}>
                           <p
-                            key={index}
                             onClick={() => this.sendCurrentTrackTextWithSocket(currentTrackTextLine)}
                           >
                             {currentTrackTextLine}
                           </p>
-                        )
-                      })
-                      :
-                      <p>Выберите песню</p>
-
+                          <span>C {index + 1}</span>
+                        </div>
+                      )
+                    })
                     :
-                    this.state.verses !== undefined && this.state.verses !== null
-                      ?
-                      this.state.verses.map((currentVerseText, verseId) => {
-                        return (
-                          <p
-                            key={verseId}
-                            onClick={() => this.sendCurrentChapterTextWithSocket(currentVerseText.verse, currentVerseText.text)}
-                          >
-                            {currentVerseText.verse}. {currentVerseText.text}
-                          </p>
-                        )
-                      })
-                      :
-                      <p>Выберите книгу</p>
-                }
-              </Switcher>
+                    <p>Выберите песню</p>
+
+                  :
+                  this.state.verses !== undefined && this.state.verses !== null
+                    ?
+                    this.state.verses.map((currentVerseText, verseId) => {
+                      return (
+                        <p
+                          key={verseId}
+                          onClick={() => this.sendCurrentChapterTextWithSocket(currentVerseText.verse, currentVerseText.text)}
+                        >
+                          {currentVerseText.verse}. {currentVerseText.text}
+                        </p>
+                      )
+                    })
+                    :
+                    <p>Выберите книгу</p>
+              }
             </div>
           </div>
           <div className="column-two-down">
@@ -722,10 +722,10 @@ const mapActionsToProps = (dispatch, props) => {
     _loadBooks: () => {
       dispatch(loadBooks())
     },
-    _loadChapters: (bookId, bookName)=> {
+    _loadChapters: (bookId, bookName) => {
       dispatch(loadChapters(bookId, bookName))
     },
-    _loadVerses: (bookId, chapterId)=> {
+    _loadVerses: (bookId, chapterId) => {
       dispatch(loadVerses(bookId, chapterId))
     },
     _changeCurrentCategory: (name) => {
