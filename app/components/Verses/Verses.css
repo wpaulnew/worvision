@@ -1,0 +1,14 @@
+.verses {
+  padding: 10px;
+}
+
+.verse {
+  margin: 0 0 4px 0;
+}
+
+.verse:hover {
+  cursor: pointer;
+  font-weight: bold;
+  /*background: #ECECEC;*/
+  /*border-radius: 4px;*/
+}

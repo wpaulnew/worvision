@@ -3,120 +3,50 @@ import md5 from 'md5';
 
 // For redux
 import {connect} from "react-redux";
-import {changeCurrentCategory} from './store/actions/ui-actions';
-import {addTrackToFavorites, loadTracks, removeTrackFromFavorites} from './store/actions/tracks-actions';
-
-// Supports library
-import axios from 'axios';
 
 // Components
-import Timer from "./components/Timer";
-import Dropdowmenu from "./components/Dropdowmenu";
-import Switcher from "./components/Switcher";
+import Tab from "./components/Tabs/Tab/Tab";
+import Books from "./components/Books/Books";
+
+// Supports library
+// import axios from 'axios';
 
 console.log('Location host: ', location.host);
 
 // Css
 import './main.css';
 
-import {Link} from "react-router-dom";
-import {loadBooks, loadChapters, loadVerses} from "./store/actions/books-actions";
+import Tabs from "./components/Tabs/Tabs";
+import Chapters from "./components/Chapters/Chapters";
+import Tracks from "./components/Tracks/Tracks";
+import Name from "./components/Name/Name";
+import Verses from "./components/Verses/Verses";
+
+// Icons
+// import ARROWLEFT from './icons/ARROWLEFT.svg';
+// import ARROWRIGHT from './icons/ARROWRIGHT.svg';
 
 class App extends Component {
 
   constructor(props) {
     super(props);
 
-    this.state = {
-      // Settings
-      view: 'projector', // projector or network
-
-      // Bible
-      verses: [],
-      currentChapterId: 1,
-      currentVerseText: '',
-      showChapters: false,
-
-      // Search
-      find: false,
-      findText: '',
-
-      // tracks
-      currentTrackId: '',
-      currentTrackName: '',
-      currentTrackText: [],
-      currentTrackTextLine: '',
-
-      // Editor
-      openEditorFrame: false,
-
-      // Canvas names
-      canvas: ''
-    };
+    this.state = {};
 
     this.openTextOfThisSong = this.openTextOfThisSong.bind(this);
 
     this.sendCurrentTrackTextWithSocket = this.sendCurrentTrackTextWithSocket.bind(this); // ws
     this.sendCurrentChapterTextWithSocket = this.sendCurrentChapterTextWithSocket.bind(this); // ws
-
-    this.changeCurrentCategory = this.changeCurrentCategory.bind(this);
-    this.updateCurrentTrackName = this.updateCurrentTrackName.bind(this);
-    this.handleEditedText = this.handleEditedText.bind(this);
-
-    // Methods for work with bible
-    this.loadChapters = this.loadChapters.bind(this);
-    this.loadVerses = this.loadVerses.bind(this);
-    this.openChaptersRoster = this.openChaptersRoster.bind(this);
-
-    // Methods for work with tracks
-    this.addSongToDb = this.addSongToDb.bind(this);
-    this.takeCurrentView = this.takeCurrentView.bind(this);
-    this.changeCurrentCollection = this.changeCurrentCollection.bind(this);
-
-    // Frame
-    this.openActionFrame = this.openActionFrame.bind(this);
-    this.actionFrameEnterName = this.actionFrameEnterName.bind(this);
-    this.actionFrameEnterText = this.actionFrameEnterText.bind(this);
-    this.actionFrameCancel = this.actionFrameCancel.bind(this);
-    this.actionFrameSave = this.actionFrameSave.bind(this);
-    this.actionFrameAdd = this.actionFrameAdd.bind(this);
-
-    this.openEditorWindow = this.openEditorWindow.bind(this);
-
-    // Search
-    this.updateFindText = this.updateFindText.bind(this);
   }
 
   componentDidMount() {
-    this.props._loadTracks();
-    this.props._loadBooks();
+    // this.props._loadTracks();
+    // this.props._loadBooks();
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", () => {
     }, false);
-  }
-
-  // Get chapters --- redux
-  loadChapters(book_number, long_name) {
-
-    this.setState({
-      showChapters: false
-    });
-
-    this.props._loadChapters(book_number, long_name);
-    this.props._loadVerses(220, 1);
-  }
-
-  // Get verses --- redux
-  loadVerses(chapterId) {
-
-    this.props._loadVerses(this.props._books.currentBook.id, chapterId);
-
-    this.setState({
-      showChapters: false
-    });
-    // Get verses
   }
 
   // Get song text by id
@@ -238,465 +168,42 @@ class App extends Component {
     };
   }
 
-  // Return value of from select component
-  changeCurrentCategory(value) {
-    console.log(value);
-    this.props._changeCurrentCategory(value);
-  }
-
-  // Return current collection
-  changeCurrentCollection(value) {
-    console.log(value);
-  }
-
-  // Change name of song
-  updateCurrentTrackName(e) {
-    this.setState({currentTrackName: e.target.value});
-  }
-
-  // Save edited text to Database
-  handleEditedText(e) {
-    console.log(e.target.value.replace(/,/g, ''));
-    this.setState({text: e.target.value.replace(/,/g, '')});
-  }
-
-  // Add new song to Db
-  addSongToDb() {
-    const {ipcRenderer} = window.require('electron');
-    // Send msg to open a window for add new song
-    ipcRenderer.send('add-new-song');
-  }
-
-  // Open editor
-  openActionFrame() {
-    const {ipcRenderer} = window.require('electron');
-    // Send msg to open a window for add new song
-    ipcRenderer.send('edit-song', JSON.stringify({currentTrackId: this.state.currentTrackId}));
-    // this.setState({openActionFrame: true});
-  }
-
-  // Enter the name in frame window
-  actionFrameEnterName(e) {
-    this.setState({actionFrameName: e.target.value})
-  }
-
-  // Enter the text in frame window
-  actionFrameEnterText(e) {
-    this.setState({actionFrameText: e.target.value})
-  }
-
-  // Cancel action from frame
-  actionFrameCancel() {
-    this.setState({openActionFrame: false})
-  }
-
-  // Save text or added song
-  actionFrameSave() {
-
-    this.setState({openActionFrame: false});
-
-    const id = this.state.currentTrackId;
-    const name = this.state.actionFrameName;
-    const text = this.state.actionFrameText;
-
-    var currentTrackText = this.state.actionFrameText.split('\n');
-
-    this.setState({
-      currentTrackName: name,
-      currentTrackText: currentTrackText
-    });
-
-    // Send changes to database
-    axios.put(`http://${location.host}/track`, {
-      id: id,
-      name: name,
-      text: text
-    })
-      .then(function (reply) {
-        console.log('reply', reply.data);
-        // if (reply.data.success === true) {
-
-        // }
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-
-  }
-
-  // Save song to Db
-  actionFrameAdd() {
-
-    this.setState({
-      allowAddingNewSong: false,
-      openActionFrame: false,
-      actionFrameName: '',
-      actionFrameText: '',
-    });
-
-    const name = this.state.actionFrameName;
-    let text = this.state.actionFrameText;
-
-    const regex = /\<p>|\<\/p\>\<p>|\<\/p>/gi;
-    text = this.state.actionFrameText.replace(regex, '\n');
-
-    axios.post(`http://${location.host}/track`, {
-      name: name,
-      text: text
-    })
-      .then(function (reply) {
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-
-  // Take current view
-  takeCurrentView(view) {
-    this.setState({view: (view === 'Проектор') ? 'projector' : 'network'});
-  }
-
-  // Show chapters roster
-  openChaptersRoster(boolean) {
-    this.setState({showChapters: boolean})
-  }
-
-  // Open editor
-  openEditorWindow() {
-    const {ipcRenderer} = window.require('electron');
-    // Send msg to open a window for add new song
-    ipcRenderer.send('editor');
-  }
-
-  // Update find text
-  updateFindText(e) {
-
-    const text = e.target.value;
-
-    if (text.length <= 0) {
-      this.setState({
-        find: false,
-        findText: ''
-      })
-    }
-
-    this.setState({
-      find: true,
-      findText: text
-    })
-  }
-
   render() {
-
-    const options = {
-      "category": [
-        {
-          id: 0,
-          value: 'Песни'
-        },
-        {
-          id: 1,
-          value: 'Библия'
-        }
-      ],
-      "views": [
-        {
-          id: 0,
-          value: 'Проектор'
-        },
-        {
-          id: 1,
-          value: 'Сеть'
-        }
-      ],
-    };
-
-    const tracks =
-      this.props._tracks !== undefined
-        ?
-        this.props._tracks.map((track) => {
-          return (
-            track.favorite !== 1
-              ?
-              <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
-                {track.name}
-                <button onClick={() => this.props._addTrackToFavorites(track.id)} id="action-button-add-to-favorite"
-                        title='Добавить в избранное'>
-                  <span id="action-button-add-to-favorite-icon"/>
-                </button>
-              </p>
-              :
-              <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
-                {track.name}
-                <button onClick={() => this.props._removeTrackFromFavorites(track.id)}
-                        id="action-button-remove-from-favorite"
-                        title='Удалить из избранного'>
-                  <span id="action-button-remove-from-favorite-icon"/>
-                </button>
-              </p>
-          );
-        })
-        :
-        '';
-
-    // Поиск собственно
-    let filteredTracks =
-      this.props._tracks !== undefined
-        ?
-        this.props._tracks.filter((track) => {
-          return track.name.indexOf(this.state.findText) !== -1;
-        })
-        : '';
-
-    const books =
-      this.props._books.books !== undefined
-        ?
-        this.props._books.books.map((book) => {
-          return <p key={book.book_number}
-                    onClick={() => this.loadChapters(book.book_number, book.long_name)}>{book.long_name}</p>
-        })
-        :
-        '';
-
-    const favorites =
-      this.props._tracks !== undefined
-        ?
-        this.props._tracks.map((track) => {
-          return (
-            track.favorite === 1
-              ?
-              <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
-                {track.name}
-                <button onClick={() => this.props._removeTrackFromFavorites(track.id)}
-                        id="action-button-remove-from-favorite"
-                        title='Удалить из избранного'>
-                  <span id="action-button-remove-from-favorite-icon"/>
-                </button>
-              </p>
-              :
-              ''
-          );
-        })
-        :
-        '';
-
-    // const chapterNumbers =
-    //   this.props._books.currentBook.chapters.length !== 0
-    //     ?
-    //     this.props._books.currentBook.chapters.map((chapter, index) => {
-    //       return (
-    //         <p key={index} onClick={() => this.loadVerses(chapter.name)}>{chapter.name}</p>)
-    //     })
-    //     : '';
 
     return (
       <React.Fragment>
 
-        <div id="hide-background"
-             style={{"display": this.state.openActionFrame || this.state.openEditorFrame ? "flex" : "none"}}></div>
-
         <div className="column-one">
-          <div className="column-one-up">
-            <input type="text" id="input-find" value={this.state.findText} onChange={this.updateFindText}
-                   placeholder="Поиск"/>
-            <Dropdowmenu
-              name='name'
-              value={(value) => this.changeCurrentCategory(value)}
-              values={this.props._ui.category.names}
-            />
-          </div>
-          <div className="column-one-center">
 
-            {
-              this.props._ui.category.name === 'Песни'
-                ?
-                <div className='collections'>
-                  {
-                    this.props._ui.collection.names.map((collection) => {
-                      return (
-                        <button key={collection.name}>{collection.name}</button>
-                      );
-                    })
-                  }
-                </div>
-                :
-                ''
-            }
+          <Tabs>
+            <Tab name="Библия" click={() => console.log('Библия')}>
+              <Books/>
+            </Tab>
+            <Tab name="Песни" click={() => console.log('Список песен')}>
+              <Tracks/>
+            </Tab>
+          </Tabs>
 
-            <div id="tracks" className="tracks">
-              {this.props._ui.category.name === 'Песни' ?
-                this.state.find === true ?
-
-                  filteredTracks.map((track) => {
-                    return (
-                      track.favorite !== 1
-                        ?
-                        <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
-                          {track.name}
-                          <button onClick={() => this.props._addTrackToFavorites(track.id)}
-                                  id="action-button-add-to-favorite"
-                                  title='Добавить в избранное'>
-                            <span id="action-button-add-to-favorite-icon"/>
-                          </button>
-                        </p>
-                        :
-                        <p key={track.id} onClick={() => this.openTextOfThisSong(track.id)}>
-                          {track.name}
-                          <button onClick={() => this.props._removeTrackFromFavorites(track.id)}
-                                  id="action-button-remove-from-favorite"
-                                  title='Удалить из избранного'>
-                            <span id="action-button-remove-from-favorite-icon"/>
-                          </button>
-                        </p>
-                    );
-                  })
-
-                  :
-                  tracks
-                :
-                books
-              }
-            </div>
-
-            {
-              this.props._ui.category.name === 'Песни'
-                ?
-                <div className="favorites">
-                  {favorites}
-                </div>
-                :
-                ''
-            }
-
-          </div>
-          <div className="column-one-down">
-
-            <button id="action-button-add" onClick={this.addSongToDb} title='Добавить'>
-              <span id="action-button-add-icon"/>
-            </button>
-            <button id="action-button-favorite" title='Избранное'>
-              <span id="action-button-favorite-icon"/>
-            </button>
-            <button id="action-button-edit" onClick={this.openActionFrame} title='Редактировать'>
-              <span id="action-button-edit-icon"/>
-            </button>
-            <button id="action-button-remove" title='Удалить'>
-              <span id="action-button-remove-icon"/>
-            </button>
-
-          </div>
         </div>
+
         <div className="column-two">
           <div className="column-two-up">
-            {
-              this.props._ui.category.name === 'Песни'
-                ?
-                <React.Fragment>
-                  <input
-                    type="text"
-                    id="input-music-name"
-                    onChange={this.updateCurrentTrackName}
-                    value={this.state.currentTrackName}
-                    placeholder="Назване выбраной песни"
-                  />
-                  <button id="action-button-change-view" title="Изменить отображение">
-                    <span id="action-button-change-view-icon"></span>
-                  </button>
-                </React.Fragment>
-                :
-                <div className='selected-book-props'>
-                  <p
-                    className='selected-book-props-book-name'>{this.state.currentBookName !== undefined ? this.state.currentBookName : ''}</p>
-                  {
-                    // this.props._books.currentBook.chapters.length !== 0
-                    //   ?
-                    //   <Dropdowmenu
-                    //     show={false}
-                    //     active={this.state.showChapters}
-                    //     click={(boolean) => this.openChaptersRoster(boolean)}
-                    //     name='name'
-                    //     values={[{name: this.state.currentChapterId}]}
-                    //   />
-                    //   :
-                    //   ''
-                  }
-                </div>
-            }
+            <Name/>
           </div>
           <div className="column-two-center">
-
-            <div
-              id="hide-background"
-              style={{
-                "display": this.state.showChapters ? "flex" : "none",
-                "width": "100%"
-              }}
-            ></div>
-
-            <div className="roster-of-chapters">
-              {this.state.showChapters ? chapterNumbers : ''}
-            </div>
-
-
-            <div id="textarea-music-text">
-              {
-                this.props._ui.category.name === 'Песни'
-                  ?
-                  this.state.currentTrackText !== undefined && this.state.currentTrackText !== null
-                    ?
-                    this.state.currentTrackText.map((currentTrackTextLine, index) => {
-                      return (
-                        <div className="textarea-music-text-c" key={index}>
-                          <p
-                            onClick={() => this.sendCurrentTrackTextWithSocket(currentTrackTextLine)}
-                          >
-                            {currentTrackTextLine}
-                          </p>
-                          <span>C {index + 1}</span>
-                        </div>
-                      )
-                    })
-                    :
-                    <p>Выберите песню</p>
-
-                  :
-                  this.state.verses !== undefined && this.state.verses !== null
-                    ?
-                    this.state.verses.map((currentVerseText, verseId) => {
-                      return (
-                        <p
-                          key={verseId}
-                          onClick={() => this.sendCurrentChapterTextWithSocket(currentVerseText.verse, currentVerseText.text)}
-                        >
-                          {currentVerseText.verse}. {currentVerseText.text}
-                        </p>
-                      )
-                    })
-                    :
-                    <p>Выберите книгу</p>
-              }
-            </div>
-          </div>
-          <div className="column-two-down">
-            <span id="ip-address">{location.host !== '' ? location.host : ''}</span>
-            <Timer/>
+            <Verses/>
           </div>
         </div>
+
         <div className="column-three">
-          <div className="column-three-up">
-            <div className="edit-text-tools"></div>
-            <div className="output-views-roster">
-              <Dropdowmenu
-                name='value'
-                value={(value) => this.takeCurrentView(value)}
-                values={options.views}
-              />
-            </div>
-          </div>
-          <div className="column-three-down">
-            <span id="ip-address">{location.host !== '' ? location.host : ''}</span>
-            <Timer/>
-          </div>
+          <Tabs>
+            <Tab name="Главы" click={() => console.log('Главы')}>
+              <Chapters/>
+            </Tab>
+            <Tab name="Моменты" click={() => console.log('История')}>
+
+            </Tab>
+          </Tabs>
         </div>
 
       </React.Fragment>
@@ -704,40 +211,12 @@ class App extends Component {
   }
 }
 
-
 const mapStateToProps = (state, props) => {
-  return {
-    _ui: state.ui,
-    _tracks: state.tracks.tracks,
-    _books: state.books
-  }
+  return {}
 };
 
 const mapActionsToProps = (dispatch, props) => {
-  // console.log('bindActionCreators', props);
-  return {
-    _loadTracks: () => {
-      dispatch(loadTracks())
-    },
-    _loadBooks: () => {
-      dispatch(loadBooks())
-    },
-    _loadChapters: (bookId, bookName) => {
-      dispatch(loadChapters(bookId, bookName))
-    },
-    _loadVerses: (bookId, chapterId) => {
-      dispatch(loadVerses(bookId, chapterId))
-    },
-    _changeCurrentCategory: (name) => {
-      dispatch(changeCurrentCategory(name))
-    },
-    _removeTrackFromFavorites: (id) => {
-      dispatch(removeTrackFromFavorites(dispatch, id))
-    },
-    _addTrackToFavorites: (id) => {
-      dispatch(addTrackToFavorites(dispatch, id))
-    }
-  }
+  return {}
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(App);

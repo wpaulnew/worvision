@@ -35,6 +35,92 @@ wss.on('connection', function connection(ws) {
 
 // Database
 
+// Get books of bible all
+app.get('/books', (req, res) => {
+  const db = new sqlite3.Database(__dirname + '/resources/bible.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    db.serialize(function () {
+      db.all('SELECT * FROM books', function (err, rows) {
+        console.log('Received books');
+        res.json(rows);
+      });
+
+    });
+
+    db.close();
+  });
+});
+
+// /chapters?book=:id
+// Get count of chapters of chosen book
+app.get('/chapters', (req, res) => {
+
+  const book_number = req.query.book;
+  // console.log(book_number);
+
+  // SELECT chapter FROM verses WHERE book_number = 10 GROUP BY chapter
+  const db = new sqlite3.Database(__dirname + '/resources/bible.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+
+    db.serialize(function () {
+      // Change chapter on name, because Dropdownmenu work it
+      db.all(`SELECT chapter AS name FROM verses WHERE book_number = ${book_number} GROUP BY chapter`, function (err, rows) {
+        console.log(`Chapters of book ${book_number} received`);
+
+        // Создаем масив из числа
+        let chapters = [];
+        let length = rows.length; // user defined length
+
+        // Записываем число в качестве значения
+        for(let i = 0; i < length; i++) {
+          chapters.push(i+1);
+        }
+
+        res.json(chapters);
+      });
+
+    });
+
+    db.close();
+  });
+});
+
+// /chapters?book=:id&chapter=:id
+// Get verses of chosen chapter
+app.get('/verses', (req, res) => {
+
+  const book_number = req.query.book;
+  const chapter = req.query.chapter;
+
+  // SELECT chapter FROM verses WHERE book_number = 10 GROUP BY chapter
+  const db = new sqlite3.Database(__dirname + '/resources/bible.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+
+    db.serialize(function () {
+      db.all(`SELECT verse, text FROM verses WHERE book_number = ${book_number} AND chapter = ${chapter}`, function (err, rows) {
+        console.log(`Verses of book ${book_number} and chapter ${chapter} received`);
+        res.json(rows);
+      });
+
+    });
+
+    db.close();
+  });
+});
+
+
+
+
+
+
+
+
 // Загрузить экран на сервер
 app.post('/upload', (req, res) => {
 
@@ -196,75 +282,6 @@ app.put('/track', function (req, res) {
         }
         res.json({success: true});
       });
-    });
-
-    db.close();
-  });
-});
-
-// Get books of bible all
-app.get('/books', (req, res) => {
-  const db = new sqlite3.Database(__dirname + '/resources/bible.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    db.serialize(function () {
-      db.all('SELECT * FROM books', function (err, rows) {
-        console.log('Received books');
-        res.json(rows);
-      });
-
-    });
-
-    db.close();
-  });
-});
-
-// /chapters?book=:id
-// Get count of chapters of chosen book
-app.get('/chapters', (req, res) => {
-
-  const book_number = req.query.book;
-  // console.log(book_number);
-
-  // SELECT chapter FROM verses WHERE book_number = 10 GROUP BY chapter
-  const db = new sqlite3.Database(__dirname + '/resources/bible.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-
-    db.serialize(function () {
-      // Change chapter on name, because Dropdownmenu work it
-      db.all(`SELECT chapter AS name FROM verses WHERE book_number = ${book_number} GROUP BY chapter`, function (err, rows) {
-        console.log(`Chapters of book ${book_number} received`);
-        res.json(rows.length);
-      });
-
-    });
-
-    db.close();
-  });
-});
-
-// /chapters?book=:id&chapter=:id
-// Get verses of chosen chapter
-app.get('/verses', (req, res) => {
-
-  const book_number = req.query.book;
-  const chapter = req.query.chapter;
-
-  // SELECT chapter FROM verses WHERE book_number = 10 GROUP BY chapter
-  const db = new sqlite3.Database(__dirname + '/resources/bible.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-
-    db.serialize(function () {
-      db.all(`SELECT verse, text FROM verses WHERE book_number = ${book_number} AND chapter = ${chapter}`, function (err, rows) {
-        console.log(`Verses of book ${book_number} and chapter ${chapter} received`);
-        res.json(rows);
-      });
-
     });
 
     db.close();

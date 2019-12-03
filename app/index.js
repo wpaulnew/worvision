@@ -8,11 +8,7 @@ import thunk from 'redux-thunk';
 import {Provider} from 'react-redux';
 import {combineReducers, createStore, applyMiddleware, compose} from "redux";
 
-import {uiReducer} from "./store/reducers/ui-reducer";
-import {tracksReducer} from "./store/reducers/tracks-reducer";
-import {loadTracks} from "./store/actions/tracks-actions";
-import {loadBooks} from "./store/actions/books-actions";
-import {booksReducer} from "./store/reducers/books-reducer";
+import {reducer} from "./store/reducers/reducer";
 
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 
@@ -25,10 +21,9 @@ import Add from "./windows/Add";
 import Edit from "./windows/Edit";
 import Editor from "./windows/Editor";
 
-const reducer = combineReducers({
-  ui: uiReducer,
-  tracks: tracksReducer,
-  books: booksReducer
+// Главный источник, через app обращаемся ко всему store
+const rreducer = combineReducers({
+  store: reducer
 });
 
 var store;
@@ -37,7 +32,7 @@ var store;
   store = compose(
     applyMiddleware(thunk),
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-  )(createStore)(reducer);
+  )(createStore)(rreducer);
 // }
 
 // if (process.env.NODE_ENV === 'application') {

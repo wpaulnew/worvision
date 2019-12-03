@@ -15,31 +15,7 @@ class Remote extends Component {
     this.clear = this.clear.bind(this);
   }
 
-
   componentDidMount() {
-
-    fetch(`http://${location.host}/current`, {mode: 'cors'})
-      .then((data) => data.json())
-      .then((data) => {
-        const response = JSON.parse(data.data);
-        console.log(response);
-
-        if (response.category === 'Библия') {
-          this.setState({
-            showBible: true,
-            data: response.data
-          });
-        }
-
-        if (response.category === 'Песни') {
-          this.setState({
-            showTrack: true,
-            data: response.data
-          });
-        }
-
-      });
-
     const ws = new WebSocket(`ws://${location.host}/`);
     // console.log(ws);
     ws.onmessage = function (event) {
@@ -95,7 +71,7 @@ class Remote extends Component {
             ?
             <div className="remote-screen">
               <div id="track">
-                <p id="track-text">{this.state.data.text}</p>
+                <p id="track-text">{this.state.data.text.replace(/,|\./g, '')}</p>
               </div>
             </div>
             : ''

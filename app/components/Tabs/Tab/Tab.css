@@ -1,0 +1,17 @@
+.tab {
+  height: 24px;
+  min-height: 24px;
+  width: 150px;
+  border: none;
+  text-transform: uppercase;
+  font-weight: bold;
+  background: #ECECEC;
+  font-size: 11px;
+  outline: none;
+  cursor: pointer;
+}
+
+.active-tab {
+  background: #484848;
+  color: #ffffff;
+}
