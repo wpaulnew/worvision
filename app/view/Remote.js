@@ -14,7 +14,6 @@ class Remote extends Component {
       text: null
     };
 
-    this.clear = this.clear.bind(this);
   }
 
   componentDidMount() {
@@ -42,15 +41,6 @@ class Remote extends Component {
       // }
 
     }.bind(this);
-  }
-
-  clear(text) {
-    return text.replace(/\{.*\}/g, '')
-      .replace(/\(\*.*\)/g, '')
-      .replace('*', '')
-      .replace('-', '—')
-      // .replace(/\"\s/g, '</i> ')
-      // .replace(/"/g, '<j>');
   }
 
   render() {

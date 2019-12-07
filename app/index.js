@@ -17,9 +17,6 @@ import Remote from "./view/Remote";
 import Screen from "./view/Screen";
 
 // Windows
-import Add from "./windows/Add";
-import Edit from "./windows/Edit";
-import Editor from "./windows/Editor";
 
 // Главный источник, через app обращаемся ко всему store
 const rreducer = combineReducers({
@@ -66,9 +63,6 @@ ReactDOM.render(
   <Provider store={store}>
     <Router>
       <Route path="/" exact component={App}/>
-      <Route path="/add" exact component={Add}/>
-      <Route path="/edit" exact component={Edit}/>
-      <Route path="/editor" exact component={Editor}/>
       <Route path="/screen" exact component={Screen}/>
       <Route path="/remote" exact component={Remote}/>
     </Router>
