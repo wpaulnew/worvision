@@ -1,31 +1,36 @@
 import React, {Component} from 'react';
-import {loadBooks, loadChapters} from "../../store/actions/reducer-actions";
+import {loadBooks, loadChapters, loadChapterVerses} from "../../store/actions/reducer-actions";
 import {connect} from "react-redux";
 
 class Books extends Component {
 
   constructor(props) {
     super(props);
-
+    this.loadChapters = this.loadChapters.bind(this);
   }
 
   componentDidMount() {
     this.props.loadBooks();
   }
 
+  loadChapters(id, name) {
+    this.props.loadChapters(id, name);
+    this.props.loadChapterVerses(id, 1);
+  }
+
   render() {
 
-    const names = this.props.names !== []
+    const list = this.props.list !== []
       ?
-      this.props.names.map((book, index) => {
-        return <p key={index} onClick={() => this.props.loadChapters(book.book_number, book.long_name)}>{book.long_name}</p>
+      this.props.list.map((book) => {
+        return <p key={book.id} onClick={() => this.loadChapters(book.id, book.name)}>{book.name}</p>
       })
       :
       '';
 
     return (
       <div id="names" className="names">
-        {names}
+        {list}
       </div>
     );
   }
@@ -33,7 +38,7 @@ class Books extends Component {
 
 const mapStateToProps = (state, props) => {
   return {
-    names: state.store.names
+    list: state.store.books.list
   }
 };
 
@@ -45,6 +50,9 @@ const mapActionsToProps = (dispatch, props) => {
     },
     loadChapters: (bookId, bookName) => {
       dispatch(loadChapters(bookId, bookName))
+    },
+    loadChapterVerses: (bookId, chapter) => {
+      dispatch(loadChapterVerses(bookId, chapter))
     }
   }
 };

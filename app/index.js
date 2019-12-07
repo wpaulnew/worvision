@@ -29,16 +29,17 @@ const rreducer = combineReducers({
 var store;
 
 // if (process.env.NODE_ENV === 'development') {
-  store = compose(
-    applyMiddleware(thunk),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-  )(createStore)(rreducer);
+//   store = compose(
+//     applyMiddleware(thunk),
+//     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+//   )(createStore)(rreducer);
 // }
 
+
 // if (process.env.NODE_ENV === 'application') {
-//   store = compose(
-//     applyMiddleware(thunk)
-//   )(createStore)(reducer);
+  store = compose(
+    applyMiddleware(thunk)
+  )(createStore)(rreducer);
 // }
 
 // const updateUiAction = {

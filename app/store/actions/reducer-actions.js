@@ -1,8 +1,7 @@
-import axios from "axios";
-
 export const LOAD_BOOKS = 'LOAD_BOOKS';
 export const LOAD_CHAPTERS = 'LOAD_CHAPTERS';
 export const LOAD_CHAPTER_VERSES = 'LOAD_CHAPTER_VERSES';
+export const UPDATE_CURRENT_VERSE = 'UPDATE_CURRENT_VERSE';
 
 export const LOAD_TRACKS = 'LOAD_TRACKS';
 // export const REMOVE_TRACK_FROM_FAVORITES = 'REMOVE_TRACK_FROM_FAVORITES';
@@ -17,13 +16,13 @@ export function loadBooks() {
         fetch(`http://${location.host}/books`, {mode: 'cors'})
           .then((books) => books.json())
           .then(
-            (names) => {
-              console.log('I got books');
+            (list) => {
+              // console.log('I got books');
               dispatch(
                 {
                   type: LOAD_BOOKS,
                   payload: {
-                    names: names
+                    list: list
                   }
                 }
               )
@@ -39,21 +38,21 @@ export function loadChapters(bookId, bookName) {
   return dispatch => {
     setTimeout(
       () => {
-        console.log(bookId);
+        // console.log(bookId);
         // http://${location.host}/chapters?book=${book_number}
 
         fetch(`http://${location.host}/chapters?book=${bookId}`, {mode: 'cors'})
           .then((books) => books.json())
           .then(
-            (chapters) => {
+            (numbers) => {
               console.log('I got chapters of book');
               dispatch(
                 {
                   type: LOAD_CHAPTERS,
                   payload: {
-                    id: bookId,
-                    name: bookName,
-                    chapters: chapters
+                    bookId: bookId,
+                    bookName: bookName,
+                    numbers: numbers
                   }
                 }
               )
@@ -75,19 +74,59 @@ export function loadChapterVerses(bookId, chapterId) {
         fetch(`http://${location.host}/verses?book=${bookId}&chapter=${chapterId}`, {mode: 'cors'})
           .then((verses) => verses.json())
           .then(
-            (verses) => {
+            (list) => {
               console.log('I got verses of book');
               dispatch(
                 {
                   type: LOAD_CHAPTER_VERSES,
                   payload: {
-                    id: bookId,
-                    verses: verses
+                    chapterId : chapterId,
+                    list: list
                   }
                 }
               )
             }
           );
+
+      }, 100
+    );
+  }
+}
+
+export function updateCurrentVerse(id, text, book, chapterId) {
+
+  // Сделать сохрание в базу даных!
+
+  return dispatch => {
+    setTimeout(
+      () => {
+
+        const ws = new WebSocket(`ws://${location.host}/`);
+
+        console.log('Отправил по сокет');
+
+        ws.onopen = () => {
+          ws.send(JSON.stringify(
+            {
+              id,
+              text,
+              book,
+              chapterId
+            }
+          ));
+        };
+
+        dispatch(
+          {
+            type: UPDATE_CURRENT_VERSE,
+            payload: {
+              id,
+              text,
+              book,
+              chapterId
+            }
+          }
+        )
 
       }, 100
     );

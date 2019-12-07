@@ -12,6 +12,13 @@ class Tracks extends Component {
     this.props.loadTracks()
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.names !== nextProps.names;
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+
+  }
 
   render() {
 

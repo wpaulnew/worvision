@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {connect} from "react-redux";
 import {loadChapterVerses} from "../../store/actions/reducer-actions";
-import Chapter from "./Chapter";
+import Number from "./Number/Number";
 
 import './Chapters.css'
 
@@ -9,31 +9,27 @@ class Chapters extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      activeChapter: 1 // Этого здесь быть не должно все должно быть в сторе
-    };
-
     this.setActive = this.setActive.bind(this);
   }
 
-  setActive(chapter) {
-    this.setState({activeChapter: chapter});
-    this.props.loadChapterVerses(this.props.id, chapter)
+  setActive(number) {
+    this.setState({activeChapter: number});
+    this.props.loadChapterVerses(this.props.bookId, number)
   }
 
   render() {
     return (
       <div className="chapters">
         {
-          this.props.chapters !== []
+          this.props.numbers !== []
             ?
-            this.props.chapters.map(
-              (chapter) => {
+            this.props.numbers.map(
+              (number) => {
                 return (
-                  <Chapter
-                    key={chapter}
-                    chapter={chapter}
-                    activeChapter={this.state.activeChapter}
+                  <Number
+                    key={number}
+                    chapter={number}
+                    activeChapter={this.props.id ? this.props.id : 1}
                     setActive={this.setActive}
                   />
                 )
@@ -49,16 +45,16 @@ class Chapters extends Component {
 const mapStateToProps = (state, props) => {
   //d книги выбраной
   return {
-    id: state.store.book.id,
-    chapters: state.store.book.chapters,
+    id: state.store.books.book.chapters.chapter.id,
+    numbers: state.store.books.book.chapters.numbers,
+    bookId: state.store.books.book.id
   }
 };
 
 const mapActionsToProps = (dispatch, props) => {
-  // console.log('bindActionCreators', props);
   return {
-    loadChapterVerses: (bookId, chapter) => {
-      dispatch(loadChapterVerses(bookId, chapter))
+    loadChapterVerses: (bookId, number) => {
+      dispatch(loadChapterVerses(bookId, number))
     }
   }
 };

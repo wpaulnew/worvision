@@ -57,7 +57,7 @@ app.get('/books', (req, res) => {
 // Get count of chapters of chosen book
 app.get('/chapters', (req, res) => {
 
-  const book_number = req.query.book;
+  const id = req.query.book;
   // console.log(book_number);
 
   // SELECT chapter FROM verses WHERE book_number = 10 GROUP BY chapter
@@ -68,8 +68,8 @@ app.get('/chapters', (req, res) => {
 
     db.serialize(function () {
       // Change chapter on name, because Dropdownmenu work it
-      db.all(`SELECT chapter AS name FROM verses WHERE book_number = ${book_number} GROUP BY chapter`, function (err, rows) {
-        console.log(`Chapters of book ${book_number} received`);
+      db.all(`SELECT chapter AS name FROM verses WHERE id = ${id} GROUP BY chapter`, function (err, rows) {
+        console.log(`Chapters of book ${id} received`);
 
         // Создаем масив из числа
         let chapters = [];
@@ -93,7 +93,7 @@ app.get('/chapters', (req, res) => {
 // Get verses of chosen chapter
 app.get('/verses', (req, res) => {
 
-  const book_number = req.query.book;
+  const id = req.query.book;
   const chapter = req.query.chapter;
 
   // SELECT chapter FROM verses WHERE book_number = 10 GROUP BY chapter
@@ -103,8 +103,8 @@ app.get('/verses', (req, res) => {
     }
 
     db.serialize(function () {
-      db.all(`SELECT verse, text FROM verses WHERE book_number = ${book_number} AND chapter = ${chapter}`, function (err, rows) {
-        console.log(`Verses of book ${book_number} and chapter ${chapter} received`);
+      db.all(`SELECT verse, text FROM verses WHERE id = ${id} AND chapter = ${chapter}`, function (err, rows) {
+        console.log(`Verses of book ${id} and chapter ${chapter} received`);
         res.json(rows);
       });
 
@@ -112,35 +112,6 @@ app.get('/verses', (req, res) => {
 
     db.close();
   });
-});
-
-
-
-
-
-
-
-
-// Загрузить экран на сервер
-app.post('/upload', (req, res) => {
-
-  var base64Data = req.body.imgBase64.replace(/^data:image\/png;base64,/, "");
-  var path = req.body.fileName + "." + "png";
-  fs.writeFile(__dirname + '/resources/upload/' + path, base64Data, "base64", function (err) {
-    if (err) {
-      console.log(err);
-    } else {
-      res.send("success");
-    }
-  });
-
-});
-
-// Получить canvas текущего экрана
-app.get('/canvas/:id', (req, res) => {
-  const id = req.params.id;
-  console.log(id);
-  res.sendFile(path.join(__dirname + '/resources/upload/' + id + '.png'));
 });
 
 // Получить все песни
@@ -288,67 +259,6 @@ app.put('/track', function (req, res) {
   });
 });
 
-// Получить инфорацию о песне по id
-app.get('/current', (request, response) => {
-
-  const db = new sqlite3.Database(__dirname + '/resources/config.db', sqlite3.OPEN_READWRITE, (err) => {
-
-    if (err) {
-      console.error(err.message);
-    }
-
-    db.serialize(function () {
-      db.all("SELECT * FROM current", function (err, rows) {
-
-          if (err) {
-            response.json(
-              {
-                success: false,
-                message: 'ERROR: SELECT * FROM current',
-              }
-            );
-          }
-          console.log('Received current save for display');
-          response.json({
-            data: rows[0].data
-          });
-        }
-      );
-    });
-
-    db.close();
-  });
-
-});
-
-// Обновить текущие выбраные тексты песни или библии
-app.put('/current', function (req, res) {
-
-  const data = req.body.data;
-  // console.log(data);
-
-  const db = new sqlite3.Database(__dirname + '/resources/config.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-
-    db.serialize(function () {
-      //Perform UPDATE operation
-      db.run(`UPDATE current SET data = $data`, {
-        $data: data,
-      }, (err) => {
-        if (err) {
-          console.error(err.message);
-        }
-        console.log('Updated current save to display');
-        res.json({success: true});
-      });
-    });
-
-    db.close();
-  });
-});
-
 // Получить избранные песни
 app.get('/favorites', (req, res) => {
   const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
@@ -393,26 +303,6 @@ app.put('/favorites', (req, res) => {
     });
 
     db.close();
-  });
-});
-
-// Получить настройки отображения
-app.get('/view', (req, res) => {
-  res.sendFile(path.join(__dirname + '/resources/config.json'));
-});
-
-// Обновить настройки отображения
-app.put('/view', (req, res) => {
-
-  const config = req.body.config;
-
-  fs.writeFile(__dirname + '/resources/config.json', JSON.stringify({config: config}), function (error) {
-
-    // if(error) throw error; // если возникла ошибка
-    console.log("Настройки отображения обновленны");
-    let data = fs.readFileSync(__dirname + '/resources/config.json', "utf8");
-    res.json(data);
-
   });
 });
 

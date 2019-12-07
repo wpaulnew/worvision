@@ -39,7 +39,7 @@ body {
 /* Column-one */
 
 .column-one {
-  width: 320px;
+  width: 250px; /* 320px */
   height: 100%;
   /*background: #F7F6F3;*/
   display: flex;
@@ -115,7 +115,7 @@ body {
 }
 
 .names p, .favorites p {
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -643,14 +643,19 @@ option {
 
 .column-three {
   display: none;
-  width: 320px;
-  max-width: 320px;
+  width: 250px;
+  max-width: 250px;
   flex-grow: 1;
   height: 100%;
   background: #FFFFFF;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow-y: auto;
+}
+
+.column-three::-webkit-scrollbar {
+  width: 0;
 }
 
 .column-three-up {
@@ -674,6 +679,7 @@ option {
   flex-direction: column;
   overflow-y: auto;
 }
+
 
 .column-three-center::-webkit-scrollbar {
   width: 0;

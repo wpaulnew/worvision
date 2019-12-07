@@ -83,3 +83,35 @@ body {
 }
 
 /* /Track */
+
+j {
+  font-weight: lighter;
+}
+
+.screen-verses {
+  width: 100%;
+  height: 100%;
+  background: #000000;
+}
+
+.screen-verse {
+  border-radius: 4px;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  padding: 10%;
+  justify-content: space-between;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.screen-verse-text {
+  font-weight: bold;
+  font-size: 3.4em;
+  line-height: 1.1em;
+}
+
+.screen-verse-reference {
+  text-transform: uppercase;
+  font-size: 3.4em;
+}

@@ -20,7 +20,7 @@ var editorWindow;
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 1300,
     height: 720,
     show: true,
     webPreferences: {

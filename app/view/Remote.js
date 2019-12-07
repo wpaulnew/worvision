@@ -7,9 +7,11 @@ class Remote extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showBible: false,
-      showTrack: false,
-      data: {}
+      active: false,
+      book: null,
+      chapter_id: null,
+      verse_id: null,
+      text: null
     };
 
     this.clear = this.clear.bind(this);
@@ -19,24 +21,25 @@ class Remote extends Component {
     const ws = new WebSocket(`ws://${location.host}/`);
     // console.log(ws);
     ws.onmessage = function (event) {
-      console.log(event.data);
+
       const response = JSON.parse(event.data);
 
-      if (response.category === 'Библия') {
-        this.setState({
-          showBible: true,
-          showTrack: false,
-          data: response.data
-        });
-      }
+      console.log(response);
 
-      if (response.category === 'Песни') {
-        this.setState({
-          showTrack: true,
-          showBible: false,
-          data: response.data
-        });
-      }
+      // const book = response.id;
+      // const chapter_id = response.chapterID;
+      // const verse_id = response.id;
+      // const text = response.text;
+
+      // if (response.category === 'Библия') {
+      this.setState({
+        active: true,
+        book: response.book,
+        chapter_id: response.chapterId,
+        verse_id: response.id,
+        text: response.text
+      });
+      // }
 
     }.bind(this);
   }
@@ -52,31 +55,13 @@ class Remote extends Component {
 
   render() {
     return (
-      <React.Fragment>
-        {
-          this.state.showBible
-            ?
-            <div id="bible">
-              <div className="bible-container">
-                <p id="bible-reference">{this.state.data.book} {this.state.data.chapter}:{this.state.data.id}</p>
-                <p id="bible-text" dangerouslySetInnerHTML={{__html: this.clear(this.state.data.text)}}></p>
-              </div>
-            </div>
-
-            : ''
-        }
-
-        {
-          this.state.showTrack
-            ?
-            <div className="remote-screen">
-              <div id="track">
-                <p id="track-text">{this.state.data.text.replace(/,|\./g, '')}</p>
-              </div>
-            </div>
-            : ''
-        }
-      </React.Fragment>
+      <div className='remote-verses' onClick={() => this.setState({active: !this.state.active})}>
+        <p className='remote-verse' style={{'display': this.state.active ? '' : 'none'}}>
+          <span className='remote-verse-text' dangerouslySetInnerHTML={{__html: this.state.text}}></span>
+          <span
+            className='remote-verse-reference'>{this.state.book} {this.state.chapter_id + ':' + this.state.verse_id}</span>
+        </p>
+      </div>
     );
   }
 }

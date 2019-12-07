@@ -2,6 +2,7 @@ const concept = {
   books: {
     active: false,
     names: [],
+    roster: [],
     book: {
       id: null,
       name: null,
@@ -22,6 +23,7 @@ const concept = {
   tracks: {
     active: false,
     names: [],
+    roster: [],
     track: {
       id: null,
       name: null,
