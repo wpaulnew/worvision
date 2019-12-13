@@ -3,7 +3,7 @@ import {
   LOAD_CHAPTERS,
   LOAD_CHAPTER_VERSES,
   UPDATE_CURRENT_VERSE,
-  LOAD_TRACKS
+  CONNECT
 } from "../actions/reducer-actions";
 
 // ids like as (id) => {}
@@ -11,54 +11,18 @@ import {
 // Для ws данные берем со всего стейта и отправляем
 
 const initialState = {
-  books: {
-    active: false,
-    list: [],
-    book: {
-      id: null,
-      name: null,
-      chapters: {
-        active: false,
-        numbers: [],
-        chapter: {
-          id: 1,
-          verses: {
-            list: [],
-            verse: {
-              id: null
-            }
-          }
-        }
-      }
-    }
-  },
-  tracks: {
-    active: false,
-    list: [],
-    track: {
-      id: null,
-      name: null,
-      verse: null
-    },
-    favorites: {
-      active: false,
-      names: []
-    }
-  }
+  books: []
 };
 
 export function reducer(state = initialState, action) {
   // console.log(state, action);
   switch (action.type) {
 
-    case LOAD_BOOKS:
+    case CONNECT:
 
       return state = {
         ...state,
-        books: {
-          ...state.books,
-          list: action.payload.list
-        }
+        books: action.payload.books
       };
 
     case LOAD_CHAPTERS:

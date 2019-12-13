@@ -1,0 +1,19 @@
+.track {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 10px 0;
+}
+
+.track:hover {
+  cursor: pointer;
+}
+
+.track-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.track-favorite-icon {
+  width: 14px;
+  height: auto;
+}

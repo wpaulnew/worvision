@@ -15,6 +15,7 @@ import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 // Views
 import Remote from "./view/Remote";
 import Screen from "./view/Screen";
+import {connect} from "./store/actions/reducer-actions";
 
 // Windows
 
@@ -51,7 +52,7 @@ var store;
 
 // Load songs
 // store.dispatch(loadTracks());
-// store.dispatch(loadBooks());
+store.dispatch(connect());
 
 console.log('STORE: ', store.getState());
 

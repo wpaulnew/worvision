@@ -1,3 +1,4 @@
+export const CONNECT = 'CONNECT';
 export const LOAD_BOOKS = 'LOAD_BOOKS';
 export const LOAD_CHAPTERS = 'LOAD_CHAPTERS';
 export const LOAD_CHAPTER_VERSES = 'LOAD_CHAPTER_VERSES';
@@ -6,6 +7,60 @@ export const UPDATE_CURRENT_VERSE = 'UPDATE_CURRENT_VERSE';
 export const LOAD_TRACKS = 'LOAD_TRACKS';
 // export const REMOVE_TRACK_FROM_FAVORITES = 'REMOVE_TRACK_FROM_FAVORITES';
 // export const ADD_TRACK_TO_FAVORITES = 'ADD_TRACK_TO_FAVORITES';
+
+export function connect() {
+  return dispatch => {
+    setTimeout(
+      () => {
+        // http://192.168.0.100:3001/tracks
+
+        fetch(`http://${location.host}/api/connect`, {mode: 'cors'})
+          .then((books) => books.json())
+          .then(
+            (books) => {
+              // console.log('I got books');
+              dispatch(
+                {
+                  type: CONNECT,
+                  payload: {
+                    books: books
+                  }
+                }
+              )
+            }
+          );
+
+      }, 100
+    );
+  }
+}
+
+export function load_active_tabs() {
+  return dispatch => {
+    setTimeout(
+      () => {
+        // http://192.168.0.100:3001/tracks
+
+        fetch(`http://${location.host}/books`, {mode: 'cors'})
+          .then((books) => books.json())
+          .then(
+            (list) => {
+              // console.log('I got books');
+              dispatch(
+                {
+                  type: LOAD_BOOKS,
+                  payload: {
+                    list: list
+                  }
+                }
+              )
+            }
+          );
+
+      }, 100
+    );
+  }
+}
 
 export function loadBooks() {
   return dispatch => {

@@ -35,278 +35,334 @@ wss.on('connection', function connection(ws) {
 
 // Database
 
-// Get books of bible all
-app.get('/books', (req, res) => {
-  const db = new sqlite3.Database(__dirname + '/resources/bible.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    db.serialize(function () {
-      db.all('SELECT * FROM books', function (err, rows) {
-        console.log('Received books');
-        res.json(rows);
+const database = 'database.sqlite'; // имя баззы данных
+
+/*
+
+books/ -- список всех книги
+books/:book_id -- информация по книге
+books/:book_id/:chapter_id -- информация по книге
+books/:book_id/:chapter_id/:verse_id -- информация по книге
+
+"book_id": 1,
+"book_name": "Бытие",
+"book_active": 0,
+"book_chapters": {
+  0: {
+
+  }
+}
+
+*/
+
+// Получам все книги
+app.get('/books', (request, response) => {
+  const db = new sqlite3.Database(__dirname + '/resources/' + database, sqlite3.OPEN_READWRITE, (error) => {
+
+    if (error) {
+      console.error(error);
+    } else {
+      db.serialize(function () {
+
+        const sql = `
+        SELECT * 
+        FROM books
+        `;
+
+        db.all(sql, function (error, rows) {
+          if (error) {
+            console.error(error)
+          } else {
+            response.json(rows);
+          }
+        });
       });
+      db.close();
+    }
 
-    });
-
-    db.close();
   });
 });
 
-// /chapters?book=:id
-// Get count of chapters of chosen book
-app.get('/chapters', (req, res) => {
+// Получить список стихов главы
+app.get('/verses/:book_id/:chapter_id', (request, response) => {
 
-  const id = req.query.book;
-  // console.log(book_number);
+  const book_id = request.params.book_id;
+  const chapter_id = request.params.chapter_id;
 
-  // SELECT chapter FROM verses WHERE book_number = 10 GROUP BY chapter
-  const db = new sqlite3.Database(__dirname + '/resources/bible.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
+  const db = new sqlite3.Database(__dirname + '/resources/' + database, sqlite3.OPEN_READWRITE, (error) => {
 
-    db.serialize(function () {
-      // Change chapter on name, because Dropdownmenu work it
-      db.all(`SELECT chapter AS name FROM verses WHERE id = ${id} GROUP BY chapter`, function (err, rows) {
-        console.log(`Chapters of book ${id} received`);
+    if (error) {
+      console.error(error.message);
+    } else {
+      db.serialize(function () {
 
-        // Создаем масив из числа
-        let chapters = [];
-        let length = rows.length; // user defined length
+        const sql = `
+        SELECT *
+        FROM verses
+        WHERE book_id = ${book_id} AND chapter_id = ${chapter_id}
+      `;
 
-        // Записываем число в качестве значения
-        for(let i = 0; i < length; i++) {
-          chapters.push(i+1);
-        }
+        db.all(sql, function (error, rows) {
+          if (error) {
+            console.error(error)
+          } else {
+            response.json(rows);
+          }
+        });
 
-        res.json(chapters);
       });
 
-    });
+      db.close();
+    }
 
-    db.close();
   });
 });
 
-// /chapters?book=:id&chapter=:id
-// Get verses of chosen chapter
-app.get('/verses', (req, res) => {
+// Получить текущий стих
+app.get('/verses/active', (request, response) => {
 
-  const id = req.query.book;
-  const chapter = req.query.chapter;
+  const db = new sqlite3.Database(__dirname + '/resources/' + database, sqlite3.OPEN_READWRITE, (error) => {
 
-  // SELECT chapter FROM verses WHERE book_number = 10 GROUP BY chapter
-  const db = new sqlite3.Database(__dirname + '/resources/bible.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
+    if (error) {
+      console.error(error.message);
+    } else {
+      db.serialize(function () {
 
-    db.serialize(function () {
-      db.all(`SELECT verse, text FROM verses WHERE id = ${id} AND chapter = ${chapter}`, function (err, rows) {
-        console.log(`Verses of book ${id} and chapter ${chapter} received`);
-        res.json(rows);
+        const sql = `
+        SELECT *
+        FROM verses
+        WHERE verse_active = 1
+        LIMIT 1
+      `;
+
+        db.all(sql, function (error, rows) {
+          if (error) {
+            console.error(error)
+          } else {
+            response.json(rows);
+          }
+        });
+
       });
 
-    });
+      db.close();
+    }
 
-    db.close();
   });
 });
 
-// Получить все песни
-app.get('/tracks', (req, res) => {
-  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    db.serialize(function () {
-      db.all('SELECT * FROM tracks', function (err, rows) {
-        console.log('Received tracks');
-        res.json(rows);
+// Сделать этит стих активным, поставить 1
+app.put('/verses/:book_id/:chapter_id/:verse_id', (request, response) => {
+
+  const book_id = request.params.book_id;
+  const chapter_id = request.params.chapter_id;
+  const verse_id = request.params.verse_id;
+
+  const db = new sqlite3.Database(__dirname + '/resources/' + database, sqlite3.OPEN_READWRITE, (error) => {
+
+    if (error) {
+      console.error(error.message);
+    } else {
+      db.serialize(function () {
+
+        const sql = `
+        SELECT *
+        FROM verses
+        WHERE book_id = ${book_id} AND chapter_id = ${chapter_id} AND verse_id = ${verse_id}
+      `;
+
+        db.all(sql, function (error, rows) {
+          if (error) {
+            console.error(error)
+          } else {
+            response.json(rows);
+          }
+        });
+
       });
 
-    });
+      db.close();
+    }
 
-    db.close();
   });
 });
 
-// Получить инфорацию о песне по id
-app.get('/tracks/:id', (request, response) => {
+// Получить текущий стих
+app.get('/tabs/active', (request, response) => {
 
-  const id = request.params.id;
+  const db = new sqlite3.Database(__dirname + '/resources/' + database, sqlite3.OPEN_READWRITE, (error) => {
 
-  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (error) {
+      console.error(error.message);
+    } else {
+      db.serialize(function () {
 
-    if (err) {
-      console.error(err.message);
+        const sql = `
+        SELECT *
+        FROM verses
+        WHERE verse_active = 1
+        LIMIT 1
+      `;
+
+        db.all(sql, function (error, rows) {
+          if (error) {
+            console.error(error)
+          } else {
+            response.json(rows);
+          }
+        });
+
+      });
+
+      db.close();
     }
 
-    db.serialize(function () {
-      db.all(`SELECT * FROM tracks WHERE id = '${id}'`, function (err, rows) {
+  });
+});
 
-          if (err) {
-            response.json(
-              {
-                success: false,
-                message: 'ERROR: GET DATA BY ID FROM DB',
+// Получить данные для запуска
+// Получить текущий стих
+app.get('/api/connect', (request, response) => {
+
+  const db = new sqlite3.Database(__dirname + '/resources/' + database, sqlite3.OPEN_READWRITE, (error) => {
+
+    if (error) {
+      console.error(error.message);
+    } else {
+
+      const bible = {
+        books: {}
+      };
+
+      // Получить список книг
+      db.serialize(function () {
+
+        const sql = `
+        SELECT * 
+        FROM books
+        `;
+
+        db.all(sql, function (error, books) {
+          if (error) {
+            console.error(error)
+          } else {
+
+            for (let i = 0; i < books.length; i++) {
+              bible.books[`${books[i].book_id}`] = {
+                id: books[i].book_id,
+                name: books[i].book_name,
+                active: !!books[i].book_active,
+                chapters: {}
+              };
+
+              if (books[i].book_active) {
+                // bible.books[`${books[i].book_name}`].chapters
+
+                db.serialize(function () {
+                  const verses = `
+                  SELECT * FROM verses WHERE verses.book_id = ${books[i].book_id} AND verses.chapter_id = ${books[i].book_active_chapter}
+                  `;
+
+                  db.all(verses, function (error, verses) {
+                    if (error) {
+                      console.error(error)
+                    } else {
+                      for (let j = 0; j < books[i].book_count_chapters; j++) {
+                        bible.books[`${books[i].book_id}`].chapters[`${j+1}`] = {
+                          id: j,
+                          active: books[i].book_active_chapter === j + 1,
+                          verses: {}
+                        };
+
+                        if (books[i].book_active_chapter === j + 1) {
+                          for (let l = 0; l < verses.length; l++) {
+                            bible.books[`${books[i].book_id}`].chapters[`${j+1}`].verses[`${verses[l].verse_id}`] = {
+                              id: verses[l].verse_id,
+                              active: !!verses[l].verse_active,
+                              text: verses[l].verse_text
+                            }
+                          }
+                        }
+                      }
+                      response.json(bible.books);
+                    }
+                  })
+                })
               }
-            );
-          }
-
-          const track = {
-            id: rows[0].id,
-            name: rows[0].name,
-            text: rows[0].text
-          };
-
-          if (track.text.length === 0) {
-            // console.log('Track text is empty');
-          }
-
-          if (track.text.length !== 0) {
-            // console.log('Track text is not empty');
-
-            function clear(arr, value) {
-
-              return arr.filter(function (ele) {
-                return ele !== value;
-              });
-
             }
-
-            track.text = clear(track.text.split("\n"), '');
           }
-
-          console.log('Received data of the selected track');
-          response.json({track});
-        }
-      );
-    });
-
-    db.close();
-  });
-
-});
-
-// Добавить новую песню в базу данных
-app.post('/track', function (req, res) {
-
-  const id = md5(req.body.name);
-  const name = req.body.name;
-  const text = req.body.text;
-
-  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
+        });
+      })
     }
-
-    db.serialize(function () {
-      //Perform UPDATE operation
-      db.run(`INSERT INTO tracks (id, name, text) VALUES ($id, $name, $text)`, {
-        $id: id,
-        $name: name,
-        $text: text
-      }, (err) => {
-        if (err) {
-          console.error(err.message);
-        } else {
-          console.log('New track has been added');
-          res.json({success: true});
-        }
-      });
-    });
-
-    db.close();
   });
 });
+// db.close();
 
-// Обновить данные о песни
-app.put('/track', function (req, res) {
+// db.serialize(function () {
+//   const sql = `
+//   SELECT book_id, chapter_id, verse_id
+//   FROM verses
+//   WHERE verse_active = 1
+//   LIMIT 1
+// `;
+//
+//   db.all(sql, function (error, rows) {
+//     if (error) {
+//       console.error(error)
+//     } else {
+//
+//       console.log(rows);
+//
+//       // const book_id = rows.book_id;
+//       const chapter_id = rows.chapter_id;
+//       const verse_id = rows.verse_id;
+//
+//       response.json(rows);
+//     }
+//   });
+//
+// });
+//
+// db.close();
 
-  const id = req.body.id;
-  const name = req.body.name;
-  const text = req.body.text;
+// verse -- текущий выбраный стих получть
 
-  // console.log(id);
-
-  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-
-    db.serialize(function () {
-      //Perform UPDATE operation
-
-      // console.log(text[0]);
-
-      db.run(`UPDATE tracks SET name = $name, text = $text WHERE id = $id`, {
-        $id: id,
-        $name: name,
-        $text: text
-      }, (err) => {
-        if (err) {
-          console.error(err.message);
-        } else {
-          console.log('Track data has been changed');
-        }
-        res.json({success: true});
-      });
-    });
-
-    db.close();
-  });
-});
-
-// Получить избранные песни
-app.get('/favorites', (req, res) => {
-  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    db.serialize(function () {
-      let songs = [];
-      db.all('SELECT * FROM tracks WHERE tracks.favorite = 1 AND tracks.active = 1 ', function (err, rows) {
-        console.log('Received favorites tracks');
-        res.json(rows);
-      });
-
-    });
-
-    db.close();
-  });
-});
-
-// Добавить в избранное или удалить
-app.put('/favorites', (req, res) => {
-
-  const id = req.body.id;
-  const favorite = req.body.favorite;
-
-  const db = new sqlite3.Database(__dirname + '/resources/songs.db', sqlite3.OPEN_READWRITE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    db.serialize(function () {
-      //Perform UPDATE operation
-      db.run(`UPDATE tracks SET favorite = $favorite WHERE id = $id`, {
-        $id: id,
-        $favorite: favorite,
-      }, (err) => {
-        if (err) {
-          console.error(err.message);
-        }
-        console.log('Track has been ' + (favorite ? 'added to' : 'remove from') + 'favorites');
-        res.json({success: true});
-      });
-    });
-
-    db.close();
-  });
-});
+// для обновление позиции текущего стиха UPDATE verses SET verse_active = 1 WHERE book_id = 43 AND chapter_id = 3 AND verse_id = 16
 
 // App
+
+// Получам одну книгу по id
+// app.get('/books/:book_id', (request, response) => {
+//
+//   const book_id = request.params.book_id;
+//
+//   const db = new sqlite3.Database(__dirname + '/resources/' + database, sqlite3.OPEN_READWRITE, (error) => {
+//
+//     if (error) {
+//       console.error(error);
+//     } else {
+//       db.serialize(function () {
+//
+//         const sql = `
+//         SELECT *
+//         FROM books
+//         WHERE book_id = ${book_id}
+//         `;
+//
+//         db.all(sql, function (error, rows) {
+//           if (error) {
+//             console.error(error)
+//           } else {
+//             response.json(rows);
+//           }
+//         });
+//       });
+//
+//       db.close();
+//     }
+//
+//   });
+// });
 
 // app.use("/", express.static(__dirname + '/view'));
 // app.use(express.static(path.join(__dirname, './view')));
@@ -314,16 +370,6 @@ app.use(express.static(path.join(__dirname, './build')));
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(path.join(__dirname, './build'), 'index.html'));
-});
-
-// Send config
-app.get('/config', (req, res) => {
-  res.json({'ip': os.networkInterfaces().wlo1[0].address + ':' + server.address().port});
-});
-
-// Получить отображение
-app.get('/viewx', (req, res) => {
-  res.sendFile(path.join(__dirname + '/view/view.html'));
 });
 
 //start our server

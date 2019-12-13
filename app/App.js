@@ -5,7 +5,7 @@ import md5 from 'md5';
 import {connect} from "react-redux";
 
 // Components
-import Books from "./components/Books/Books";
+import BooksContainer from "./components/BooksContainer/BooksContainer";
 
 // Supports library
 // import axios from 'axios';
@@ -15,9 +15,17 @@ console.log('Location host: ', location.host);
 // Css
 import './main.css';
 
-import Chapters from "./components/Chapters/Chapters";
-import Tracks from "./components/Tracks/Tracks";
-import Verses from "./components/Verses/Verses";
+import SearchContainer from "./components/SearchContainer/SearchContainer";
+import AboutActiveBookContainer from "./components/AboutActiveBookContainer/AboutActiveBookContainer";
+import ChaptersContainer from "./components/ChaptersContainer/ChaptersContainer";
+import ControlPanelContainer from "./components/ControlPanelContainer/ControlPanelContainer";
+import PreviewContainer from "./components/PreviewContainer/PreviewContainer";
+import VersesContainer from "./components/VersesContainer/VersesContainer";
+import ToolbarContainer from "./components/ToolbarContainer/ToolbarContainer";
+import TracksContainer from "./components/TracksContainer/TracksContainer";
+import FavoritesContainer from "./components/FavoritesContainer/FavoritesContainer";
+import CoupletsContainer from "./components/CoupletsContainer/CoupletsContainer";
+import TracksRedactorContainer from "./components/TracksRedactorContainer/TracksRedactorContainer";
 
 class App extends Component {
 
@@ -27,8 +35,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // this.props._loadTracks();
-    // this.props._loadBooks();
+    // Проверка какая вкладка открыта
   }
 
   render() {
@@ -37,18 +44,41 @@ class App extends Component {
       <React.Fragment>
 
         <div className="column-one">
-          <Books/>
-          {/*<Tracks/>*/}
-        </div>
-
-        <div className="column-two">
-          <div className="column-two-center">
-            <Verses/>
+          <div className="column-one-up">
+            <SearchContainer/>
+          </div>
+          <div className="column-one-center">
+            <BooksContainer/>
+            {/*<TracksContainer/>*/}
           </div>
         </div>
 
+        <div className="column-two">
+          <div className="column-two-up">
+            <AboutActiveBookContainer/>
+          </div>
+          <div className="column-two-center">
+            <PreviewContainer/>
+            <ControlPanelContainer/>
+            <ChaptersContainer/>
+            {/*<FavoritesContainer/>*/}
+            {/*<TracksRedactorContainer/>*/}
+          </div>
+          {/*<div className="column-two-down">*/}
+          {/* */}
+          {/*</div>*/}
+        </div>
+
         <div className="column-three">
-          <Chapters/>
+
+          <div className="column-three-up">
+            <ToolbarContainer/>
+          </div>
+
+          <div className="column-three-center">
+            <VersesContainer/>
+            {/*<CoupletsContainer/>*/}
+          </div>
         </div>
 
       </React.Fragment>

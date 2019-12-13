@@ -1,0 +1,28 @@
+.verse {
+  width: 235px;
+  height: 151px;
+  box-sizing: border-box;
+  background: #323232;
+  color: #FFFFFF;
+  padding: 10%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 4px;
+}
+
+.verse:hover {
+  cursor: pointer;
+}
+
+.verse-text {
+  font-size: 8px;
+  font-weight: bold;
+  text-transform: uppercase;
+  line-height: 9px;
+}
+
+.verse-reference {
+  text-transform: uppercase;
+  font-size: 9px;
+}

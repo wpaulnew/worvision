@@ -1,63 +1,75 @@
 import React, {Component} from 'react';
-import {connect} from "react-redux";
+import PropTypes from 'prop-types';
+import Verse from "../Verse/Verse";
 
 import './Verses.css';
-import {updateCurrentVerse} from "../../store/actions/reducer-actions";
-import Verse from "./Verse";
 
 class Verses extends Component {
-  constructor(props) {
-    super(props);
-
-    this.switcher = this.switcher.bind(this);
-    this.verses = React.createRef();
-  }
-
-  componentWillMount() {
-    document.body.addEventListener('keydown',  this.switcher);
-  }
-
-  componentWillUnmount() {
-    document.body.removeEventListener('keydown', this.switcher)
-  }
-
-  switcher (e) {
-    let count;
-    this.verses.current.children ?
-      count = Math.floor(this.verses.current.clientWidth / this.verses.current.children[0].clientWidth) : '';
-
-    if (e.code === 'ArrowUp') {
-      this.verses.current.children[this.props.verse_id - count - 1] ?
-        this.verses.current.children[this.props.verse_id - count - 1].click() : '';
-    } else if (e.code === 'ArrowDown') {
-      this.verses.current.children[this.props.verse_id + count - 1] ?
-        this.verses.current.children[this.props.verse_id + count - 1].click() : '';
-    } else if (e.code === 'ArrowRight' || e.code === 'Space') {
-      e.code === 'Space' ? e.preventDefault() : '';
-      this.verses.current.children[this.props.verse_id] ?
-        this.verses.current.children[this.props.verse_id].click() : '';
-    } else if (e.code === 'ArrowLeft') {
-      this.verses.current.children[this.props.verse_id - 2] ?
-        this.verses.current.children[this.props.verse_id - 2].click() : '';
-    }
-  }
-
   render() {
+
+    // const verses = [
+    //   {
+    //     id: 1,
+    //     text: 'Между фарисеями был некто, именем Никодим, один из начальников Иудейских.',
+    //     reference: 'Иоанна 3:1'
+    //   },
+    //   {
+    //     id: 2,
+    //     text: 'Он пришел к Иисусу ночью и сказал Ему: Равви́! мы знаем, что Ты — учитель, пришедший от Бога; ибо таких чудес, какие Ты творишь, никто не может творить, если не будет с ним Бог.',
+    //     reference: 'Иоанна 3:2'
+    //   },
+    //   {
+    //     id: 3,
+    //     text: 'Иисус сказал ему в ответ: истинно, истинно говорю тебе, если кто не родится свыше, не может увидеть Царствия Божия.',
+    //     reference: 'Иоанна 3:3'
+    //   },
+    //   {
+    //     id: 4,
+    //     text: 'Никодим говорит Ему: как может человек родиться, будучи стар? неужели может он в другой раз войти в утробу матери своей и родиться?',
+    //     reference: 'Иоанна 3:4'
+    //   },
+    //   {
+    //     id: 5,
+    //     text: 'Иисус отвечал: истинно, истинно говорю тебе, если кто не родится от воды и Духа, не может войти в Царствие Божие.',
+    //     reference: 'Иоанна 3:5'
+    //   },
+    //   {
+    //     id: 6,
+    //     text: 'Рожденное от плоти есть плоть, а рожденное от Духа есть дух.',
+    //     reference: 'Иоанна 3:5'
+    //   },
+    //   {
+    //     id: 7,
+    //     text: 'Не удивляйся тому, что Я сказал тебе: должно вам родиться свыше.',
+    //     reference: 'Иоанна 3:5'
+    //   },
+    //   {
+    //     id: 8,
+    //     text: 'Дух дышит, где хочет, и голос его слышишь, а не знаешь, откуда приходит и куда уходит: так бывает со всяким, рожденным от Духа.',
+    //     reference: 'Иоанна 3:5'
+    //   },
+    //   {
+    //     id: 9,
+    //     text: 'Никодим сказал Ему в ответ: как это может быть?',
+    //     reference: 'Иоанна 3:5'
+    //   },
+    //   {
+    //     id: 10,
+    //     text: 'Иисус отвечал и сказал ему: ты - учитель Израилев, и этого ли не знаешь?',
+    //     reference: 'Иоанна 3:5'
+    //   }
+    // ];
+
     return (
-      <div className='verses' ref={this.verses}>
+      <div className='verses'>
         {
-          //Сделать что бы verse был одним компонентом как для слов песни и для стиха
-          this.props.verses.map((verse) => {
+          this.props.verses.map(({verse_id, chapter_id, verse_text, reference}) => {
             return (
-             <Verse
-               key={verse.verse}
-               data={{
-                 book: this.props.book,
-                 chapter_id: this.props.chapter_id,
-                 verse: verse.verse,
-                 text: verse.text
-               }}
-             />
+              <Verse
+                key={verse_id}
+                text={verse_text}
+                reference={'Иоанна' + ' ' + chapter_id + ':' + verse_id}
+              />
             )
           })
         }
@@ -66,13 +78,6 @@ class Verses extends Component {
   }
 }
 
-const mapStateToProps = (state, props) => {
-  return {
-    chapter_id: state.store.books.book.chapters.chapter.id,
-    verses: state.store.books.book.chapters.chapter.verses.list,
-    verse_id: state.store.books.book.chapters.chapter.verses.verse.id,
-    book: state.store.books.book.name
-  }
-};
+Verses.propTypes = {};
 
-export default connect(mapStateToProps)(Verses);
+export default Verses;

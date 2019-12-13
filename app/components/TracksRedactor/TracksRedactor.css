@@ -1,0 +1,14 @@
+.tracks-redactor {
+  height: 100%;
+}
+
+.tracks-redactor-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 -3px 0;
+  resize: none;
+  outline: none;
+  border: none;
+  border-bottom: solid 1px #f5f5f5;
+  padding: 10px;
+}

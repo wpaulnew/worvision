@@ -1,56 +1,30 @@
 import React, {Component} from 'react';
-import {connect} from "react-redux";
-import {loadTracks} from "../../store/actions/reducer-actions";
+import PropTypes from 'prop-types';
+import Track from "../Track/Track";
+
+import './Tracks.css';
 
 class Tracks extends Component {
-
-  constructor(props) {
-    super(props);
-  }
-
-  componentDidMount() {
-    this.props.loadTracks()
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.props.names !== nextProps.names;
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-
-  }
-
   render() {
-
-    const names = this.props.names !== []
-      ?
-      this.props.names.map((track, index) => {
-        return <p key={index}>{track.name}</p>
-      })
-      :
-      '';
-
     return (
-      <div id="names" className="names">
-        {names}
+      <div className='tracks'>
+        {
+          this.props.tracks.map(({id, name, favorite}) => {
+            return (
+              <Track
+                key={id}
+                id={id}
+                name={name}
+                favorite={favorite}
+              />
+            )
+          })
+        }
       </div>
     );
   }
 }
 
-const mapStateToProps = (state, props) => {
-  return {
-    names: state.store.names
-  }
-};
+Tracks.propTypes = {};
 
-const mapActionsToProps = (dispatch, props) => {
-  // console.log('bindActionCreators', props);
-  return {
-    loadTracks: () => {
-      dispatch(loadTracks())
-    }
-  }
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(Tracks);
+export default Tracks;

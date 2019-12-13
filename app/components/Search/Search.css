@@ -1,0 +1,25 @@
+.search {
+  display: flex;
+  height: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px 0 10px;
+}
+
+.search-input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding: 0 10px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.search-input::placeholder {
+  font-size: 15.5px;
+}
+
+.search-total-quantity {
+  font-size: 14px;
+  font-weight: 500;
+}

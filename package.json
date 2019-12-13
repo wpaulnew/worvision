@@ -11,7 +11,7 @@
     "webpack": "webpack --mode production",
     "api": "nodemon api",
     "webpack-api": "webpack --mode development & node api",
-    "dev": "NODE_ENV=development webpack --mode development & node api & electron .",
+    "dev": "NODE_ENV=development webpack --mode development & node --inspect api & electron .",
     "app": "NODE_ENV=application webpack --mode development & node api & electron ."
   },
   "repository": "https://github.com/wpaulnew/worvision",
@@ -53,6 +53,7 @@
     "html2canvas": "^1.0.0-rc.5",
     "ip": "^1.1.5",
     "md5": "^2.2.1",
+    "prop-types": "^15.7.2",
     "re-resizable": "^6.0.0",
     "react-draggable": "^4.0.3",
     "react-redux": "^7.1.0",
